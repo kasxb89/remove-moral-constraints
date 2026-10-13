@@ -31,6 +31,180 @@
 
 ---
 
+## 快速开始
+
+### 环境要求
+
+| 依赖 | 版本 | 何时需要 |
+|------|------|---------|
+| Python | 3.8+ | 必需 |
+| Node.js | 20.19+（20.x）或 22.12+ | 仅重新构建前端或使用开发模式时需要 |
+| 目标工具 | 任一 | Codex CLI / Claude Code / OpenCode，至少装一个 |
+
+### 启动渗透版 Codex（最常用）
+
+```bash
+# 1. 装一次 CTF Profile
+codex-patcher --install-ctf-config
+
+# 2. 用渗透版启动
+codex -p ctf
+```
+
+- `codex -p ctf` 只在这次启动生效，普通 `codex` 会话完全不受影响。
+- 想让**所有** Codex 新会话都带 CTF 上下文，就用全局模式：Web UI → 提示词增强 → Codex → 启用。之后直接敲 `codex` 即可，不加参数。
+- 查看当前装了什么：`codex-patcher --ctf-status`。
+
+### 启动方式一：Web UI（推荐）
+
+```bash
+git clone https://github.com/kasxb89/remove-moral-constraints.git
+cd remove-moral-constraints
+
+./scripts/start-web.sh
+```
+
+启动后浏览器打开 **http://127.0.0.1:8080**。
+
+换地址或端口用环境变量覆盖：
+
+```bash
+PORT=9000 ./scripts/start-web.sh
+HOST=127.0.0.1 PORT=9000 ./scripts/start-web.sh
+```
+
+脚本按需执行，不会重复安装：Python Web 依赖缺失才 `pip install -e ".[web]"`；前端 `dist` 已是最新就直接跳过构建——所以只跑生产模式时，机器上没有 Node.js 也能启动。
+
+**开发模式（前后端分离 + 热更新，需要 Node.js）：**
+
+```bash
+./scripts/dev-web.sh
+```
+
+```
+前端: http://127.0.0.1:3000    ← 3000 被占用时自动顺延到下一个可用端口
+后端: http://127.0.0.1:8080    ← API 文档在 http://127.0.0.1:8080/docs
+```
+
+开发模式的前后端地址也可用 `BACKEND_HOST` / `BACKEND_PORT` / `FRONTEND_HOST` / `FRONTEND_PORT` 覆盖。
+
+### 启动方式二：终端 CLI
+
+安装成全局命令：
+
+```bash
+./scripts/install.sh
+codex-patcher --help
+```
+
+安装脚本把可执行入口写到 `~/.local/bin/codex-patcher`（一个指向仓库的包装脚本，核心 CLI 无第三方依赖，不需要额外 `pip install`）。如果它提示 `~/.local/bin` 不在 PATH 中：
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+```
+
+也可以不安装，直接在仓库目录里跑同一个 CLI：
+
+```bash
+cd remove-moral-constraints
+python3 -m codex_session_patcher.cli --help
+```
+
+CLI 也能直接拉起 Web UI：
+
+```bash
+codex-patcher --web                     # http://127.0.0.1:8080
+codex-patcher --web --host 127.0.0.1 --port 9000
+```
+
+注意：`--web` 走的是 FastAPI，需要先装一次 Web 依赖（`pip install -e ".[web]"`）。如果你用的是 `./scripts/start-web.sh`，这一步由脚本自动完成。
+
+### 启动方式三：pip 安装（可选）
+
+```bash
+pip install -e ".[web]"
+
+codex-patcher --help    # 会话清理 / CTF 注入
+codex-patcher-web       # Web UI，默认 http://127.0.0.1:47832
+```
+
+注意 `codex-patcher-web` 的默认端口是 **47832**，与 `./scripts/start-web.sh` 的 8080 不同。想统一用 8080：
+
+```bash
+codex-patcher --web --port 8080
+# 或者
+python3 -m uvicorn web.backend.main:app --host 127.0.0.1 --port 8080
+```
+
+---
+
+## 终端里怎么用
+
+### 清理会话
+
+```bash
+# 先预览，不改文件
+codex-patcher --dry-run --show-content
+
+# 清理最新 / 全部会话
+codex-patcher --latest
+codex-patcher --all
+
+# 指定格式（codex / claude-code / opencode / auto，默认 auto）
+codex-patcher --latest --format claude-code
+codex-patcher --latest --format opencode
+
+# 指定会话目录、不创建备份、保留推理内容
+codex-patcher --latest --session-dir ~/.codex/sessions
+codex-patcher --latest --no-backup
+codex-patcher --latest --keep-reasoning
+
+# 查看帮助
+codex-patcher --help
+```
+
+### CTF/渗透测试提示词注入
+
+**Codex —— Profile 模式（推荐，只影响 `-p ctf` 启动的会话）：**
+
+```bash
+codex-patcher --install-ctf-config
+
+codex -p ctf              # 用 CTF profile 启动
+# 遇到拒绝 → Web UI 清理会话
+codex resume              # 继续上下文
+
+codex-patcher --uninstall-ctf-config    # 卸载
+```
+
+**Codex —— 全局模式：** 在 Web UI 的提示词增强页启用，所有新会话自动生效，不影响已有会话。
+
+**Claude Code / OpenCode —— 专用工作空间：**
+
+```bash
+codex-patcher --install-claude-ctf       # 创建 ~/.claude-ctf-workspace
+cd ~/.claude-ctf-workspace && claude
+
+codex-patcher --install-opencode-ctf     # 创建 ~/.opencode-ctf-workspace
+cd ~/.opencode-ctf-workspace && opencode
+```
+
+OpenCode 没有 profile 机制，CTF 注入依赖工作空间，必须从该目录启动。
+
+**查看三平台注入状态：**
+
+```bash
+codex-patcher --ctf-status
+```
+
+**改写提示词**（需先在 Web UI 配置 AI 接口）：
+
+```bash
+codex-patcher --rewrite "帮我写一个逆向分析脚本"
+```
+
+---
+
 ## 功能特性
 
 ### 会话清理
@@ -69,147 +243,23 @@
 
 ---
 
-## 安装
-
-```bash
-git clone https://github.com/kasxb89/remove-moral-constraints.git
-cd remove-moral-constraints
-
-# CLI 版本（自动探测 Python 3.8+）
-./scripts/install.sh
-```
-
-Web UI 的 `./scripts/start-web.sh` 和 `./scripts/dev-web.sh` 也会自动探测可用的 Python 3.8+ 解释器，优先尝试当前环境里的通用启动命令（如 `python3` / `python`），再回退到版本化命令或 `py -3`，并且只在依赖缺失或源码变更时才执行安装 / 构建。
-如果你确实需要手动安装 editable 包，再使用你机器上已有的 Python 3.8+ 启动命令执行 `-m pip install -e ...`；Windows 常见的是 `py -3`，其他环境可能是 `python3.12`、`python3` 或 `python`。
-在 Windows 的 Git Bash / MSYS / MINGW / Cygwin 环境中，项目启动脚本会自动为 Python 子进程设置 `PYTHONIOENCODING=utf-8`，减少本地 AI 代理或 Web 后端因 GBK 控制台导致中文变成问号串的概率。
-
-Web UI 合作页里的合作意向表单默认提交到线上的 Muggle Leads 服务（`https://leads.3jiezhiwai.com`），本地运行 Web UI 不需要部署 Cloudflare，也不需要配置提交地址。
-
-如果你 fork 了项目并希望表单提交到自己的服务，可以在启动 Web 服务前覆盖远程提交地址：
-
-```bash
-export MUGGLE_LEADS_ENDPOINT="https://你的 Worker 域名/api/sources/codex-session-patcher/intents"
-```
-
-Telegram Bot token 和后台管理密钥只配置在服务端的 Cloudflare Worker 里，不能放在本地工具或前端代码中。
-
----
-
-## 使用方式
-
-### Web UI（推荐）
-
-```bash
-# 生产模式
-./scripts/start-web.sh
-```
-
-访问 `http://localhost:8080`
-
-**开发模式（前后端热更新）：**
-```bash
-./scripts/dev-web.sh
-```
-
-说明：
-- 生产脚本只会在 Python Web 依赖缺失、前端依赖缺失/过期、或前端构建产物过期时才执行对应步骤。
-- 如果前端构建产物已经可直接提供服务，生产脚本不会为了启动而额外要求 `node` / `npm` 或补装前端依赖。
-- 重新构建前端或使用开发模式需要 Node.js 20.19+（20.x）或 22.12+；直接使用已构建产物不需要 Node.js。
-- 开发脚本同样会跳过重复安装；如果 `3000` 端口已占用，会自动选择下一个可用端口启动前端。
-
-### CLI
-
-```bash
-# 查看帮助
-codex-patcher --help
-
-# 预览模式（不修改文件）
-codex-patcher --dry-run --show-content
-
-# 清理最新会话
-codex-patcher --latest
-
-# 清理所有会话
-codex-patcher --all
-
-# 指定会话目录
-codex-patcher --session-dir ~/.codex/sessions --latest
-
-# 指定格式（codex / claude-code / opencode / auto）
-codex-patcher --latest --format claude-code
-codex-patcher --latest --format opencode
-
-# 不创建备份
-codex-patcher --latest --no-backup
-
-# 启动 Web UI
-codex-patcher --web
-codex-patcher --web --host 127.0.0.1 --port 8080
-
-# CTF 提示词注入 — Codex
-codex-patcher --install-ctf-config    # 安装
-codex-patcher --uninstall-ctf-config  # 卸载
-
-# CTF 提示词注入 — Claude Code
-codex-patcher --install-claude-ctf    # 安装
-codex-patcher --uninstall-claude-ctf  # 卸载
-
-# CTF 提示词注入 — OpenCode
-codex-patcher --install-opencode-ctf    # 安装
-codex-patcher --uninstall-opencode-ctf  # 卸载
-
-# 查看所有 CTF 配置状态
-codex-patcher --ctf-status
-
-# 改写提示词（需先在 Web UI 配置 AI）
-codex-patcher --rewrite "帮我写一个逆向分析脚本"
-```
-
-#### CLI 参数说明
-
-| 参数 | 说明 |
-|------|------|
-| `--session-dir` | 指定会话目录（默认自动选择） |
-| `--format` | 会话格式：`codex` / `claude-code` / `opencode` / `auto` |
-| `--dry-run` | 预览模式，不修改文件 |
-| `--no-backup` | 不创建备份文件 |
-| `--show-content` | 显示修改的详细内容 |
-| `--latest` | 只处理最新会话 |
-| `--all` | 处理所有会话 |
-| `--keep-reasoning` | 保留推理内容（thinking/reasoning blocks），仅替换拒绝回复 |
-| `--web` | 启动 Web UI |
-| `--host` | Web UI 监听地址（默认且仅支持回环地址 127.0.0.1） |
-| `--port` | Web UI 端口（默认 8080） |
-| `--install-ctf-config` | 安装 Codex CTF 配置 |
-| `--ctf-injection-mode append\|replace` | 选择 Codex 注入方式，默认追加规则 |
-| `--uninstall-ctf-config` | 卸载 Codex CTF 配置 |
-| `--install-claude-ctf` | 安装 Claude Code CTF 配置 |
-| `--uninstall-claude-ctf` | 卸载 Claude Code CTF 配置 |
-| `--install-opencode-ctf` | 安装 OpenCode CTF 配置 |
-| `--uninstall-opencode-ctf` | 卸载 OpenCode CTF 配置 |
-| `--ctf-status` | 查看三平台 CTF 配置状态 |
-| `--rewrite` | 改写提示词使其更易被接受 |
-
----
-
 ## CTF/渗透测试工作流
 
 ### Codex
 
-```
-1. 安装 CTF Profile
-   codex-patcher --install-ctf-config
+```bash
+# 1. 安装 CTF Profile
+codex-patcher --install-ctf-config
 
-   # 强 CTF 场景可选择替换 Codex 内置提示词
-   codex-patcher --install-ctf-config --ctf-injection-mode replace
+# 强 CTF 场景可选择替换 Codex 内置提示词
+codex-patcher --install-ctf-config --ctf-injection-mode replace
 
-2. 使用 CTF Profile 启动（不影响普通会话）
-   codex -p ctf
+# 2. 用 CTF Profile 启动（不影响普通会话）
+codex -p ctf
 
-3. 发送请求，若遇到拒绝 → 打开 Web UI 清理会话
-
-4. resume 继续
-   codex resume
+# 3. 遇到拒绝 → 打开 Web UI 清理会话
+# 4. 继续
+codex resume
 ```
 
 安装器会写入新版 Codex profile 文件：
@@ -234,27 +284,77 @@ Profile 和提示词文件也使用管理标记。遇到没有标记的同名配
 
 ### Claude Code
 
-```
-1. Web UI → 提示词增强 → Claude Code → 启用
-   （创建 ~/.claude-ctf-workspace）
+```bash
+# 1. Web UI → 提示词增强 → Claude Code → 启用
+#    （创建 ~/.claude-ctf-workspace）
 
-2. 从专用工作空间启动
-   cd ~/.claude-ctf-workspace && claude
+# 2. 从专用工作空间启动
+cd ~/.claude-ctf-workspace && claude
 
-3. 遇到拒绝 → Web UI 清理 → 继续对话
+# 3. 遇到拒绝 → Web UI 清理 → 继续对话
 ```
 
 ### OpenCode
 
-```
-1. Web UI → 提示词增强 → OpenCode → 启用
-   （创建 ~/.opencode-ctf-workspace）
+```bash
+# 1. Web UI → 提示词增强 → OpenCode → 启用
+#    （创建 ~/.opencode-ctf-workspace）
 
-2. 从专用工作空间启动
-   cd ~/.opencode-ctf-workspace && opencode
+# 2. 从专用工作空间启动
+cd ~/.opencode-ctf-workspace && opencode
 
-3. 遇到拒绝 → Web UI 清理 → 继续对话
+# 3. 遇到拒绝 → Web UI 清理 → 继续对话
 ```
+
+---
+
+## CLI 参数速查
+
+| 参数 | 说明 |
+|------|------|
+| `--session-dir` | 指定会话目录（默认自动选择） |
+| `--format` | 会话格式：`codex` / `claude-code` / `opencode` / `auto`（默认 `auto`） |
+| `--dry-run` | 预览模式，不修改文件 |
+| `--no-backup` | 不创建备份文件 |
+| `--show-content` | 显示修改的详细内容 |
+| `--latest` | 只处理最新会话 |
+| `--all` | 处理所有会话 |
+| `--keep-reasoning` | 保留推理内容（thinking/reasoning blocks），仅替换拒绝回复 |
+| `--web` | 启动 Web UI |
+| `--host` | Web UI 监听地址（默认 `127.0.0.1`） |
+| `--port` | Web UI 端口（默认 `8080`） |
+| `--install-ctf-config` | 安装 Codex CTF 配置 |
+| `--ctf-injection-mode append\|replace` | 选择 Codex 注入方式，默认追加规则 |
+| `--uninstall-ctf-config` | 卸载 Codex CTF 配置 |
+| `--install-claude-ctf` | 安装 Claude Code CTF 配置 |
+| `--uninstall-claude-ctf` | 卸载 Claude Code CTF 配置 |
+| `--install-opencode-ctf` | 安装 OpenCode CTF 配置 |
+| `--uninstall-opencode-ctf` | 卸载 OpenCode CTF 配置 |
+| `--ctf-status` | 查看三平台 CTF 配置状态 |
+| `--rewrite` | 改写提示词使其更易被接受 |
+
+仓库根目录还保留了早期单文件脚本 `codex_patcher.py`（仅处理 Codex JSONL 会话，支持 `--select` / `--date` / `--file` / `--memory-file` / `--auto-resume`）。日常使用请优先用上面的 CLI。
+
+---
+
+## 环境变量
+
+| 变量 | 作用 | 默认值 |
+|------|------|--------|
+| `HOST` / `PORT` | `./scripts/start-web.sh` 的监听地址 / 端口 | `127.0.0.1` / `8080` |
+| `BACKEND_HOST` / `BACKEND_PORT` | `./scripts/dev-web.sh` 后端地址 / 端口 | `127.0.0.1` / `8080` |
+| `FRONTEND_HOST` / `FRONTEND_PORT` | `./scripts/dev-web.sh` 前端地址 / 端口 | `127.0.0.1` / `3000` |
+| `CODEX_SESSION_PATCHER_PYTHON` | 强制 `codex-patcher` 使用的 Python 解释器 | 自动探测 |
+| `MUGGLE_LEADS_ENDPOINT` | 合作意向表单的提交地址 | 线上 Muggle Leads 服务 |
+| `MUGGLE_LEADS_SOURCE_ID` / `MUGGLE_LEADS_SOURCE_NAME` | 提交时携带的来源标识 | `codex-session-patcher` / `Codex Session Patcher` |
+
+Web UI 合作页里的合作意向表单默认提交到线上服务 `https://leads.3jiezhiwai.com`，本地运行不需要部署 Cloudflare，也不需要配置提交地址。如果你 fork 了项目并希望表单提交到自己的服务：
+
+```bash
+export MUGGLE_LEADS_ENDPOINT="https://你的 Worker 域名/api/sources/codex-session-patcher/intents"
+```
+
+Telegram Bot token 和后台管理密钥只配置在服务端的 Cloudflare Worker 里，不能放在本地工具或前端代码中。
 
 ---
 
@@ -304,10 +404,57 @@ remove-moral-constraints/
 │           ├── components/       # 页面组件
 │           ├── stores/           # Pinia 状态管理
 │           └── locales/          # i18n 国际化
-├── tests/
 ├── scripts/
+│   ├── install.sh                # 安装 CLI 到 ~/.local/bin
+│   ├── start-web.sh              # 启动 Web UI（生产）
+│   └── dev-web.sh                # 启动 Web UI（开发）
+├── tests/
 └── pyproject.toml
 ```
+
+---
+
+## 常见问题
+
+**`./scripts/start-web.sh` 报找不到 Python**
+
+需要 Python 3.8+。脚本会依次尝试 `python3` / `python` / `python3.13` … `python3.8` / `py -3`；也可以显式指定解释器后重试：
+
+```bash
+CODEX_SESSION_PATCHER_PYTHON=/usr/bin/python3 ./scripts/start-web.sh
+```
+
+**提示 Node.js 版本过低**
+
+只有「重新构建前端」和「开发模式」需要 Node.js，要求 20.19+（20.x）或 22.12+。如果 `web/frontend/dist` 已存在且是最新的，生产模式不会碰 Node.js。
+
+**8080 端口被占用**
+
+```bash
+PORT=9000 ./scripts/start-web.sh
+```
+
+**`codex-patcher --web` 和 `./scripts/start-web.sh` 打开的端口不一样**
+
+两者是不同的入口：脚本默认 8080（可用 `PORT` 覆盖），pip 安装出的 `codex-patcher-web` 默认 47832，`--web` 则跟随 `--port`（默认 8080）。
+
+**设置了 `--host 0.0.0.0` 还是只能本机访问**
+
+服务只服务回环来源：HTTP 请求和 WebSocket 会校验客户端地址与页面 Origin。这是有意的安全边界，请保持默认 `127.0.0.1`。
+
+**`codex -p ctf` 启动报 legacy profile 错误**
+
+重跑一次 `codex-patcher --install-ctf-config`，安装器会清理旧格式的 `profile = "ctf"` / `[profiles.ctf]` 配置。
+
+**`codex-patcher --ctf-status` 显示 Codex「未安装」，但我明明开了全局模式**
+
+状态输出目前只反映 **Profile 模式**（`~/.codex/ctf.config.toml` 里有没有管理标记），全局注入不在这一行体现，所以开了全局模式也可能显示 ❌。判断全局注入是否生效，直接看 `config.toml` 里的标记：
+
+```bash
+grep -c '__csp_ctf_global__' ~/.codex/config.toml   # 1 = 已注入，0 = 未注入
+```
+
+只要标记在、且它下面的 `developer_instructions` 没被注释，直接 `codex` 启动就已经是渗透版。
 
 ---
 
