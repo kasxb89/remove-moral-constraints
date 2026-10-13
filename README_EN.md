@@ -1,6 +1,6 @@
 <div align="center">
 
-# Codex Session Patcher
+# Remove Moral Constraints
 
 **AI Coding Session Cleaner & CTF/Pentest Prompt Injection Tool**
 
@@ -8,10 +8,12 @@ Supports **Codex CLI** · **Claude Code** · **OpenCode**
 
 [简体中文](./README.md) | English
 
-[![GitHub stars](https://img.shields.io/github/stars/ryfineZ/codex-session-patcher?style=flat-square)](https://github.com/ryfineZ/codex-session-patcher/stargazers)
-[![GitHub release](https://img.shields.io/github/v/release/ryfineZ/codex-session-patcher?style=flat-square)](https://github.com/ryfineZ/codex-session-patcher/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/kasxb89/remove-moral-constraints?style=flat-square)](https://github.com/kasxb89/remove-moral-constraints/stargazers)
+[![GitHub release](https://img.shields.io/github/v/release/kasxb89/remove-moral-constraints?style=flat-square)](https://github.com/kasxb89/remove-moral-constraints/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square)](https://python.org)
+
+The CLI and Python package names stay `codex-patcher` / `codex_session_patcher`, with config in `~/.codex-patcher/`.
 
 </div>
 
@@ -70,8 +72,8 @@ AI coding tools (Codex, Claude Code, OpenCode) frequently refuse security-relate
 ## Installation
 
 ```bash
-git clone https://github.com/ryfineZ/codex-session-patcher.git
-cd codex-session-patcher
+git clone https://github.com/kasxb89/remove-moral-constraints.git
+cd remove-moral-constraints
 
 # CLI install (auto-detects Python 3.8+)
 ./scripts/install.sh
@@ -81,7 +83,7 @@ The Web UI launchers `./scripts/start-web.sh` and `./scripts/dev-web.sh` also au
 If you really need a manual editable install, run `-m pip install -e ...` with whatever Python 3.8+ launcher already exists on your machine; on Windows that is often `py -3`, while other environments may use `python3.12`, `python3`, or `python`.
 On Windows Git Bash / MSYS / MINGW / Cygwin, the project launch scripts automatically set `PYTHONIOENCODING=utf-8` for Python child processes to reduce question-mark mojibake from GBK console encoding in local AI proxies or the Web backend.
 
-Cooperation-intent form submissions from the Web UI cooperation page are sent to the author's hosted Muggle Leads service (`https://leads.3jiezhiwai.com`). Local users do not need to deploy Cloudflare or configure a submission endpoint.
+Cooperation-intent form submissions from the Web UI cooperation page default to the hosted Muggle Leads service (`https://leads.3jiezhiwai.com`). Running the Web UI locally does not require deploying Cloudflare or configuring a submission endpoint.
 
 If you fork this project and want submissions to go to your own service, override the remote endpoint before starting the Web service:
 
@@ -89,7 +91,7 @@ If you fork this project and want submissions to go to your own service, overrid
 export MUGGLE_LEADS_ENDPOINT="https://your-worker-domain/api/sources/codex-session-patcher/intents"
 ```
 
-Telegram Bot tokens and admin secrets are configured only in the author's hosted Cloudflare Worker, never in the local tool or frontend code.
+Telegram Bot tokens and admin secrets live only in the server-side Cloudflare Worker, never in the local tool or frontend code.
 
 ---
 
@@ -289,18 +291,18 @@ The Web settings API never returns the plaintext `ai_key`; it only reports wheth
 If this project helps you:
 
 - ⭐ Star the repo
-- ☕ Buy me a coffee — Sponsor button in the Web UI top-right corner (WeChat / USDC)
-- 📢 Follow on X: [@ZhangYufan73644](https://x.com/ZhangYufan73644)
+- ☕ Sponsor button in the Web UI top-right corner (WeChat / USDC)
+- 🐦 X (Twitter): [@YOUR_X_HANDLE](https://x.com/YOUR_X_HANDLE)
 
 ---
 
 ## License
 
-[MIT License](LICENSE)
+[MIT License](./LICENSE)
 
 ---
 
 <div align="center">
-  <a href="https://github.com/ryfineZ">GitHub</a> ·
-  <a href="https://x.com/ZhangYufan73644">X (Twitter)</a>
+  <a href="https://github.com/kasxb89">GitHub</a> ·
+  <a href="https://x.com/YOUR_X_HANDLE">X (Twitter)</a>
 </div>

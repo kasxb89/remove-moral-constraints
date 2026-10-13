@@ -1,6 +1,6 @@
 <div align="center">
 
-# Codex Session Patcher
+# Remove Moral Constraints
 
 **AI 编码工具会话清理器 & CTF/渗透测试提示词注入工具**
 
@@ -8,10 +8,12 @@
 
 [English](./README_EN.md) | 简体中文
 
-[![GitHub stars](https://img.shields.io/github/stars/ryfineZ/codex-session-patcher?style=flat-square)](https://github.com/ryfineZ/codex-session-patcher/stargazers)
-[![GitHub release](https://img.shields.io/github/v/release/ryfineZ/codex-session-patcher?style=flat-square)](https://github.com/ryfineZ/codex-session-patcher/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/kasxb89/remove-moral-constraints?style=flat-square)](https://github.com/kasxb89/remove-moral-constraints/stargazers)
+[![GitHub release](https://img.shields.io/github/v/release/kasxb89/remove-moral-constraints?style=flat-square)](https://github.com/kasxb89/remove-moral-constraints/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](./LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=flat-square)](https://python.org)
+
+命令行与 Python 包名沿用 `codex-patcher` / `codex_session_patcher`，配置目录为 `~/.codex-patcher/`。
 
 </div>
 
@@ -70,8 +72,8 @@
 ## 安装
 
 ```bash
-git clone https://github.com/ryfineZ/codex-session-patcher.git
-cd codex-session-patcher
+git clone https://github.com/kasxb89/remove-moral-constraints.git
+cd remove-moral-constraints
 
 # CLI 版本（自动探测 Python 3.8+）
 ./scripts/install.sh
@@ -81,7 +83,7 @@ Web UI 的 `./scripts/start-web.sh` 和 `./scripts/dev-web.sh` 也会自动探�
 如果你确实需要手动安装 editable 包，再使用你机器上已有的 Python 3.8+ 启动命令执行 `-m pip install -e ...`；Windows 常见的是 `py -3`，其他环境可能是 `python3.12`、`python3` 或 `python`。
 在 Windows 的 Git Bash / MSYS / MINGW / Cygwin 环境中，项目启动脚本会自动为 Python 子进程设置 `PYTHONIOENCODING=utf-8`，减少本地 AI 代理或 Web 后端因 GBK 控制台导致中文变成问号串的概率。
 
-Web UI 合作页里的合作意向表单会提交到作者部署的 Muggle Leads 线上服务（`https://leads.3jiezhiwai.com`），普通用户本地运行时不需要部署 Cloudflare，也不需要配置提交地址。
+Web UI 合作页里的合作意向表单默认提交到线上的 Muggle Leads 服务（`https://leads.3jiezhiwai.com`），本地运行 Web UI 不需要部署 Cloudflare，也不需要配置提交地址。
 
 如果你 fork 了项目并希望表单提交到自己的服务，可以在启动 Web 服务前覆盖远程提交地址：
 
@@ -89,7 +91,7 @@ Web UI 合作页里的合作意向表单会提交到作者部署的 Muggle Leads
 export MUGGLE_LEADS_ENDPOINT="https://你的 Worker 域名/api/sources/codex-session-patcher/intents"
 ```
 
-Telegram Bot token 和后台管理密钥只配置在作者部署的 Cloudflare Worker 里，不能放在本地工具或前端代码中。
+Telegram Bot token 和后台管理密钥只配置在服务端的 Cloudflare Worker 里，不能放在本地工具或前端代码中。
 
 ---
 
@@ -278,7 +280,7 @@ Web 设置接口不会返回 `ai_key` 明文，只返回是否已配置。设置
 ## 项目结构
 
 ```
-codex-session-patcher/
+remove-moral-constraints/
 ├── codex_session_patcher/        # 核心库
 │   ├── cli.py                    # CLI 入口
 │   ├── core/
@@ -323,19 +325,20 @@ codex-session-patcher/
 如果这个项目对你有帮助，欢迎：
 
 - ⭐ 点个 Star
-- ☕ Buy me a coffee — Web UI 右上角有赞赏入口（微信 / USDC）
-- 📢 关注微信公众号「钢之AI术师」获取更多 AI 工具技巧
+- ☕ Web UI 右上角有赞赏入口（微信 / USDC）
+- 📢 微信公众号：`YOUR_WECHAT_MP`
+- 🐦 X (Twitter)：[@YOUR_X_HANDLE](https://x.com/YOUR_X_HANDLE)
 
 ---
 
 ## 许可证
 
-[MIT License](LICENSE)
+[MIT License](./LICENSE)
 
 ---
 
 <div align="center">
-  <a href="https://github.com/ryfineZ">GitHub</a> ·
-  <a href="https://x.com/ZhangYufan73644">X (Twitter)</a> ·
-  微信公众号：钢之AI术师
+  <a href="https://github.com/kasxb89">GitHub</a> ·
+  <a href="https://x.com/YOUR_X_HANDLE">X (Twitter)</a> ·
+  微信公众号：YOUR_WECHAT_MP
 </div>
