@@ -456,6 +456,14 @@ grep -c '__csp_ctf_global__' ~/.codex/config.toml   # 1 = 已注入，0 = 未注
 
 只要标记在、且它下面的 `developer_instructions` 没被注释，直接 `codex` 启动就已经是渗透版。
 
+**Windows 下中文输出变成问号**
+
+在 Windows 的 Git Bash / MSYS / MINGW / Cygwin 环境中，启动脚本会自动为 Python 子进程设置 `PYTHONIOENCODING=utf-8`，减少本地 AI 代理或 Web 后端因 GBK 控制台导致中文变成问号串的概率。如果仍然出现 `?`，启动前自己导出一份：
+
+```bash
+export PYTHONIOENCODING=utf-8
+```
+
 ---
 
 ## 局限性说明

@@ -31,6 +31,180 @@ AI coding tools (Codex, Claude Code, OpenCode) frequently refuse security-relate
 
 ---
 
+## Quick Start
+
+### Requirements
+
+| Dependency | Version | When it is needed |
+|------------|---------|-------------------|
+| Python | 3.8+ | Always |
+| Node.js | 20.19+ (20.x) or 22.12+ | Only to rebuild the frontend or run development mode |
+| Target tool | any | At least one of Codex CLI / Claude Code / OpenCode |
+
+### Start the CTF/Pentest Codex (most common)
+
+```bash
+# 1. Install the CTF profile once
+codex-patcher --install-ctf-config
+
+# 2. Launch the pentest build
+codex -p ctf
+```
+
+- `codex -p ctf` applies only to that launch; a plain `codex` session is untouched.
+- To give **every** new Codex session the CTF context, use global mode instead: Web UI → Prompt Enhance → Codex → Enable. After that, plain `codex` is enough with no extra flag.
+- Check what is currently installed: `codex-patcher --ctf-status`.
+
+### Option 1: Web UI (Recommended)
+
+```bash
+git clone https://github.com/kasxb89/remove-moral-constraints.git
+cd remove-moral-constraints
+
+./scripts/start-web.sh
+```
+
+Then open **http://127.0.0.1:8080** in your browser.
+
+Override the address or port with environment variables:
+
+```bash
+PORT=9000 ./scripts/start-web.sh
+HOST=127.0.0.1 PORT=9000 ./scripts/start-web.sh
+```
+
+The script runs each step only when needed: Python web deps are installed with `pip install -e ".[web]"` only when missing, and the frontend build is skipped when `dist` is current — so production mode starts fine on a machine without Node.js.
+
+**Development mode (split frontend/backend with hot reload, requires Node.js):**
+
+```bash
+./scripts/dev-web.sh
+```
+
+```
+frontend: http://127.0.0.1:3000    ← falls back to the next free port if 3000 is taken
+backend:  http://127.0.0.1:8080    ← API docs at http://127.0.0.1:8080/docs
+```
+
+Development addresses can also be overridden with `BACKEND_HOST` / `BACKEND_PORT` / `FRONTEND_HOST` / `FRONTEND_PORT`.
+
+### Option 2: Terminal CLI
+
+Install it as a global command:
+
+```bash
+./scripts/install.sh
+codex-patcher --help
+```
+
+The installer writes the entry point to `~/.local/bin/codex-patcher` (a small wrapper pointing at this repo — the core CLI has no third-party dependencies, so no `pip install` is needed). If it warns that `~/.local/bin` is not on your `PATH`:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+```
+
+You can also skip the install and run the same CLI straight from the repo:
+
+```bash
+cd remove-moral-constraints
+python3 -m codex_session_patcher.cli --help
+```
+
+The CLI can launch the Web UI as well:
+
+```bash
+codex-patcher --web                     # http://127.0.0.1:8080
+codex-patcher --web --host 127.0.0.1 --port 9000
+```
+
+Note: `--web` serves FastAPI, so the web dependencies must be installed once (`pip install -e ".[web]"`). `./scripts/start-web.sh` takes care of that for you.
+
+### Option 3: pip install (Optional)
+
+```bash
+pip install -e ".[web]"
+
+codex-patcher --help    # session cleaning / CTF injection
+codex-patcher-web       # Web UI, default http://127.0.0.1:47832
+```
+
+Note that `codex-patcher-web` defaults to port **47832**, unlike the 8080 used by `./scripts/start-web.sh`. To standardize on 8080:
+
+```bash
+codex-patcher --web --port 8080
+# or
+python3 -m uvicorn web.backend.main:app --host 127.0.0.1 --port 8080
+```
+
+---
+
+## Using It From the Terminal
+
+### Cleaning Sessions
+
+```bash
+# Preview first, do not touch files
+codex-patcher --dry-run --show-content
+
+# Clean the latest / all sessions
+codex-patcher --latest
+codex-patcher --all
+
+# Pick a format (codex / claude-code / opencode / auto, defaults to auto)
+codex-patcher --latest --format claude-code
+codex-patcher --latest --format opencode
+
+# Custom session directory, no backup, keep reasoning blocks
+codex-patcher --latest --session-dir ~/.codex/sessions
+codex-patcher --latest --no-backup
+codex-patcher --latest --keep-reasoning
+
+# Show help
+codex-patcher --help
+```
+
+### CTF/Pentest Prompt Injection
+
+**Codex — Profile mode (recommended; only affects sessions started with `-p ctf`):**
+
+```bash
+codex-patcher --install-ctf-config
+
+codex -p ctf              # launch with the CTF profile
+# refused? → clean the session in the Web UI
+codex resume              # continue with full context
+
+codex-patcher --uninstall-ctf-config    # uninstall
+```
+
+**Codex — Global mode:** enable it in the Web UI prompt-enhance page. It applies to all new sessions and does not affect existing ones.
+
+**Claude Code / OpenCode — dedicated workspaces:**
+
+```bash
+codex-patcher --install-claude-ctf       # creates ~/.claude-ctf-workspace
+cd ~/.claude-ctf-workspace && claude
+
+codex-patcher --install-opencode-ctf     # creates ~/.opencode-ctf-workspace
+cd ~/.opencode-ctf-workspace && opencode
+```
+
+OpenCode has no profile mechanism, so CTF injection depends on the workspace — you must launch from that directory.
+
+**Check injection status across platforms:**
+
+```bash
+codex-patcher --ctf-status
+```
+
+**Rewrite a prompt** (configure the AI endpoint in the Web UI first):
+
+```bash
+codex-patcher --rewrite "Help me write a reverse analysis script"
+```
+
+---
+
 ## Features
 
 ### Session Cleaning
@@ -69,147 +243,23 @@ AI coding tools (Codex, Claude Code, OpenCode) frequently refuse security-relate
 
 ---
 
-## Installation
-
-```bash
-git clone https://github.com/kasxb89/remove-moral-constraints.git
-cd remove-moral-constraints
-
-# CLI install (auto-detects Python 3.8+)
-./scripts/install.sh
-```
-
-The Web UI launchers `./scripts/start-web.sh` and `./scripts/dev-web.sh` also auto-detect a compatible Python 3.8+ interpreter, first trying generic launchers from the current environment such as `python3` or `python`, then falling back to versioned commands or `py -3`, and only install/build when dependencies or frontend assets are actually out of date.
-If you really need a manual editable install, run `-m pip install -e ...` with whatever Python 3.8+ launcher already exists on your machine; on Windows that is often `py -3`, while other environments may use `python3.12`, `python3`, or `python`.
-On Windows Git Bash / MSYS / MINGW / Cygwin, the project launch scripts automatically set `PYTHONIOENCODING=utf-8` for Python child processes to reduce question-mark mojibake from GBK console encoding in local AI proxies or the Web backend.
-
-Cooperation-intent form submissions from the Web UI cooperation page default to the hosted Muggle Leads service (`https://leads.3jiezhiwai.com`). Running the Web UI locally does not require deploying Cloudflare or configuring a submission endpoint.
-
-If you fork this project and want submissions to go to your own service, override the remote endpoint before starting the Web service:
-
-```bash
-export MUGGLE_LEADS_ENDPOINT="https://your-worker-domain/api/sources/codex-session-patcher/intents"
-```
-
-Telegram Bot tokens and admin secrets live only in the server-side Cloudflare Worker, never in the local tool or frontend code.
-
----
-
-## Usage
-
-### Web UI (Recommended)
-
-```bash
-# Production mode
-./scripts/start-web.sh
-```
-
-Visit `http://localhost:8080`
-
-**Development mode (hot reload):**
-```bash
-./scripts/dev-web.sh
-```
-
-Notes:
-- The production script only installs Python deps, installs frontend deps, or rebuilds the frontend when one of those steps is actually needed.
-- If the frontend build output is already ready to serve, the production script does not require `node` or `npm` or reinstall frontend dependencies just to start.
-- Rebuilding the frontend or using development mode requires Node.js 20.19+ on the 20.x line, or Node.js 22.12+. Serving existing build output does not require Node.js.
-- The development script also skips repeated installs; if port `3000` is already occupied, it will automatically pick the next available frontend port.
-
-### CLI
-
-```bash
-# Show help
-codex-patcher --help
-
-# Preview mode (no file modification)
-codex-patcher --dry-run --show-content
-
-# Clean latest session
-codex-patcher --latest
-
-# Clean all sessions
-codex-patcher --all
-
-# Specify session directory
-codex-patcher --session-dir ~/.codex/sessions --latest
-
-# Specify format (codex / claude-code / opencode / auto)
-codex-patcher --latest --format claude-code
-codex-patcher --latest --format opencode
-
-# No backup
-codex-patcher --latest --no-backup
-
-# Launch Web UI
-codex-patcher --web
-codex-patcher --web --host 127.0.0.1 --port 8080
-
-# CTF Prompt Injection — Codex
-codex-patcher --install-ctf-config    # Install
-codex-patcher --uninstall-ctf-config  # Uninstall
-
-# CTF Prompt Injection — Claude Code
-codex-patcher --install-claude-ctf    # Install
-codex-patcher --uninstall-claude-ctf  # Uninstall
-
-# CTF Prompt Injection — OpenCode
-codex-patcher --install-opencode-ctf    # Install
-codex-patcher --uninstall-opencode-ctf  # Uninstall
-
-# View all CTF config status
-codex-patcher --ctf-status
-
-# Rewrite prompt (requires AI config in Web UI first)
-codex-patcher --rewrite "Help me write a reverse analysis script"
-```
-
-#### CLI Arguments
-
-| Argument | Description |
-|----------|-------------|
-| `--session-dir` | Specify session directory (auto-selected by default) |
-| `--format` | Session format: `codex` / `claude-code` / `opencode` / `auto` |
-| `--dry-run` | Preview mode, don't modify files |
-| `--no-backup` | Don't create backup files |
-| `--show-content` | Show detailed modification content |
-| `--latest` | Process only the latest session |
-| `--all` | Process all sessions |
-| `--keep-reasoning` | Keep reasoning content (thinking/reasoning blocks), only replace refusal responses |
-| `--web` | Launch Web UI |
-| `--host` | Web UI listen address (loopback only; default 127.0.0.1) |
-| `--port` | Web UI port (default 8080) |
-| `--install-ctf-config` | Install Codex CTF config |
-| `--ctf-injection-mode append\|replace` | Choose Codex injection mode, defaults to append |
-| `--uninstall-ctf-config` | Uninstall Codex CTF config |
-| `--install-claude-ctf` | Install Claude Code CTF config |
-| `--uninstall-claude-ctf` | Uninstall Claude Code CTF config |
-| `--install-opencode-ctf` | Install OpenCode CTF config |
-| `--uninstall-opencode-ctf` | Uninstall OpenCode CTF config |
-| `--ctf-status` | View CTF config status for all platforms |
-| `--rewrite` | Rewrite prompt for better acceptance |
-
----
-
 ## CTF/Pentest Workflow
 
 ### Codex
 
-```
-1. Install CTF Profile
-   codex-patcher --install-ctf-config
+```bash
+# 1. Install the CTF profile
+codex-patcher --install-ctf-config
 
-   # Strong CTF scenarios can replace Codex built-in instructions
-   codex-patcher --install-ctf-config --ctf-injection-mode replace
+# Strong CTF scenarios can replace Codex built-in instructions
+codex-patcher --install-ctf-config --ctf-injection-mode replace
 
-2. Launch with CTF profile (doesn't affect normal sessions)
-   codex -p ctf
+# 2. Launch with the CTF profile (doesn't affect normal sessions)
+codex -p ctf
 
-3. If refused → open Web UI → clean session
-
-4. Resume
-   codex resume
+# 3. Refused? → open the Web UI and clean the session
+# 4. Continue
+codex resume
 ```
 
 The installer writes the new Codex profile file:
@@ -234,27 +284,77 @@ Profile and prompt files also carry ownership markers. Install, update, and unin
 
 ### Claude Code
 
-```
-1. Web UI → Prompt Enhance → Claude Code → Enable
-   (creates ~/.claude-ctf-workspace)
+```bash
+# 1. Web UI → Prompt Enhance → Claude Code → Enable
+#    (creates ~/.claude-ctf-workspace)
 
-2. Launch from dedicated workspace
-   cd ~/.claude-ctf-workspace && claude
+# 2. Launch from the dedicated workspace
+cd ~/.claude-ctf-workspace && claude
 
-3. If refused → Web UI clean → continue conversation
+# 3. Refused? → clean in the Web UI → continue the conversation
 ```
 
 ### OpenCode
 
-```
-1. Web UI → Prompt Enhance → OpenCode → Enable
-   (creates ~/.opencode-ctf-workspace)
+```bash
+# 1. Web UI → Prompt Enhance → OpenCode → Enable
+#    (creates ~/.opencode-ctf-workspace)
 
-2. Launch from dedicated workspace
-   cd ~/.opencode-ctf-workspace && opencode
+# 2. Launch from the dedicated workspace
+cd ~/.opencode-ctf-workspace && opencode
 
-3. If refused → Web UI clean → continue conversation
+# 3. Refused? → clean in the Web UI → continue the conversation
 ```
+
+---
+
+## CLI Reference
+
+| Argument | Description |
+|----------|-------------|
+| `--session-dir` | Specify session directory (auto-selected by default) |
+| `--format` | Session format: `codex` / `claude-code` / `opencode` / `auto` (default `auto`) |
+| `--dry-run` | Preview mode, don't modify files |
+| `--no-backup` | Don't create backup files |
+| `--show-content` | Show detailed modification content |
+| `--latest` | Process only the latest session |
+| `--all` | Process all sessions |
+| `--keep-reasoning` | Keep reasoning content (thinking/reasoning blocks), only replace refusal responses |
+| `--web` | Launch Web UI |
+| `--host` | Web UI listen address (default `127.0.0.1`) |
+| `--port` | Web UI port (default `8080`) |
+| `--install-ctf-config` | Install Codex CTF config |
+| `--ctf-injection-mode append\|replace` | Choose Codex injection mode, defaults to append |
+| `--uninstall-ctf-config` | Uninstall Codex CTF config |
+| `--install-claude-ctf` | Install Claude Code CTF config |
+| `--uninstall-claude-ctf` | Uninstall Claude Code CTF config |
+| `--install-opencode-ctf` | Install OpenCode CTF config |
+| `--uninstall-opencode-ctf` | Uninstall OpenCode CTF config |
+| `--ctf-status` | View CTF config status for all platforms |
+| `--rewrite` | Rewrite prompt for better acceptance |
+
+The repo root also keeps the early single-file script `codex_patcher.py` (Codex JSONL sessions only; supports `--select` / `--date` / `--file` / `--memory-file` / `--auto-resume`). Prefer the CLI above for daily use.
+
+---
+
+## Environment Variables
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `HOST` / `PORT` | `./scripts/start-web.sh` listen address / port | `127.0.0.1` / `8080` |
+| `BACKEND_HOST` / `BACKEND_PORT` | `./scripts/dev-web.sh` backend address / port | `127.0.0.1` / `8080` |
+| `FRONTEND_HOST` / `FRONTEND_PORT` | `./scripts/dev-web.sh` frontend address / port | `127.0.0.1` / `3000` |
+| `CODEX_SESSION_PATCHER_PYTHON` | Force the Python interpreter used by `codex-patcher` | auto-detected |
+| `MUGGLE_LEADS_ENDPOINT` | Submission endpoint for the cooperation-intent form | Hosted Muggle Leads service |
+| `MUGGLE_LEADS_SOURCE_ID` / `MUGGLE_LEADS_SOURCE_NAME` | Source identifiers sent with submissions | `codex-session-patcher` / `Codex Session Patcher` |
+
+Cooperation-intent form submissions from the Web UI cooperation page default to the hosted Muggle Leads service (`https://leads.3jiezhiwai.com`). Running the Web UI locally does not require deploying Cloudflare or configuring a submission endpoint. If you fork this project and want submissions to go to your own service:
+
+```bash
+export MUGGLE_LEADS_ENDPOINT="https://your-worker-domain/api/sources/codex-session-patcher/intents"
+```
+
+Telegram Bot tokens and admin secrets live only in the server-side Cloudflare Worker, never in the local tool or frontend code.
 
 ---
 
@@ -274,6 +374,95 @@ CLI and Web UI share `~/.codex-patcher/config.json`:
 | `ctf_templates` | User-saved prompt templates | `{}` |
 
 The Web settings API never returns the plaintext `ai_key`; it only reports whether one is configured. The key field stays blank after loading. Saving it blank preserves the existing key, entering a new value replaces it, and saving after Reset explicitly clears it.
+
+---
+
+## Project Structure
+
+```
+remove-moral-constraints/
+├── codex_session_patcher/        # core library
+│   ├── cli.py                    # CLI entry point
+│   ├── core/
+│   │   ├── formats.py            # multi-platform format strategies
+│   │   ├── parser.py             # session parser (JSONL + SQLite)
+│   │   ├── sqlite_adapter.py     # OpenCode SQLite adapter
+│   │   ├── detector.py           # refusal detector
+│   │   └── patcher.py            # cleaning logic
+│   └── ctf_config/
+│       ├── installer.py          # CTF injection installer (3 platforms)
+│       ├── templates.py          # built-in prompt templates
+│       └── status.py             # status detection
+├── web/
+│   ├── backend/                  # FastAPI backend
+│   │   ├── api.py                # API routes
+│   │   ├── ai_service.py         # AI analysis & rewrite
+│   │   ├── prompt_rewriter.py    # prompt rewrite service
+│   │   └── schemas.py            # data models
+│   └── frontend/                 # Vue 3 + Naive UI
+│       └── src/
+│           ├── components/       # page components
+│           ├── stores/           # Pinia state
+│           └── locales/          # i18n
+├── scripts/
+│   ├── install.sh                # install CLI into ~/.local/bin
+│   ├── start-web.sh              # start Web UI (production)
+│   └── dev-web.sh                # start Web UI (development)
+├── tests/
+└── pyproject.toml
+```
+
+---
+
+## FAQ
+
+**`./scripts/start-web.sh` cannot find Python**
+
+Python 3.8+ is required. The script tries `python3` / `python` / `python3.13` … `python3.8` / `py -3` in order; you can also point it at a specific interpreter:
+
+```bash
+CODEX_SESSION_PATCHER_PYTHON=/usr/bin/python3 ./scripts/start-web.sh
+```
+
+**"Node.js version is too old"**
+
+Only rebuilding the frontend and development mode need Node.js, requiring 20.19+ (20.x) or 22.12+. If `web/frontend/dist` exists and is current, production mode never touches Node.js.
+
+**Port 8080 is already in use**
+
+```bash
+PORT=9000 ./scripts/start-web.sh
+```
+
+**`codex-patcher --web` and `./scripts/start-web.sh` open different ports**
+
+They are different entry points: the script defaults to 8080 (override with `PORT`), the pip-installed `codex-patcher-web` defaults to 47832, and `--web` follows `--port` (default 8080).
+
+**I set `--host 0.0.0.0` and it is still only reachable locally**
+
+The service only serves loopback clients: HTTP requests and WebSockets validate the client address and the page Origin. That boundary is intentional — keep the default `127.0.0.1`.
+
+**`codex -p ctf` fails with a legacy profile error**
+
+Re-run `codex-patcher --install-ctf-config`; the installer cleans up the legacy `profile = "ctf"` / `[profiles.ctf]` entries.
+
+**`codex-patcher --ctf-status` reports Codex as "not installed" even though global mode is on**
+
+The status output currently reflects **Profile mode** only (whether `~/.codex/ctf.config.toml` carries the managed marker); global injection is not part of that line, so ❌ can appear with global mode enabled. To check whether global injection is live, look at the marker in `config.toml`:
+
+```bash
+grep -c '__csp_ctf_global__' ~/.codex/config.toml   # 1 = injected, 0 = not injected
+```
+
+As long as the marker exists and the `developer_instructions` under it is not commented out, a plain `codex` launch is already the pentest build.
+
+**Chinese output shows up as question marks on Windows**
+
+On Windows Git Bash / MSYS / MINGW / Cygwin the launch scripts set `PYTHONIOENCODING=utf-8` for Python child processes, which avoids GBK console mojibake from the local AI proxy or the Web backend. If you still see `?` runs, export it before starting:
+
+```bash
+export PYTHONIOENCODING=utf-8
+```
 
 ---
 
