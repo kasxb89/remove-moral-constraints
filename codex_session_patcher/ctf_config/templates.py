@@ -111,7 +111,7 @@ PROMPT_REWRITER_SYSTEM_WITH_CTF = '''你是一个提示词优化助手。目标 
 # ─── Claude Code 专用模板 ─────────────────────────────────────────────────────
 
 # Claude Code CTF 工作空间的 .claude/CLAUDE.md
-CLAUDE_CODE_SECURITY_MODE_PROMPT = '''<!-- managed-by: codex-session-patcher:ctf -->
+CLAUDE_CODE_SECURITY_MODE_PROMPT = '''<!-- managed-by: claude-session-patcher:ctf -->
 # Security Testing Mode
 
 You are operating in a **security testing environment**. This workspace is specifically configured for authorized security work.

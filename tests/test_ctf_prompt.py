@@ -69,7 +69,7 @@ class TestCTFPromptTemplates:
 
     def test_claude_template_exists(self):
         from codex_session_patcher.ctf_config.templates import CLAUDE_CODE_SECURITY_MODE_PROMPT
-        assert 'managed-by: codex-session-patcher:ctf' in CLAUDE_CODE_SECURITY_MODE_PROMPT
+        assert 'managed-by: claude-session-patcher:ctf' in CLAUDE_CODE_SECURITY_MODE_PROMPT
 
     def test_opencode_template_exists(self):
         from codex_session_patcher.ctf_config.templates import OPENCODE_SECURITY_MODE_PROMPT
@@ -116,6 +116,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         (codex_dir / "config.toml").write_text('model = "auto"\n', encoding="utf-8")
@@ -144,6 +146,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         save_config({
             "ctf_prompts": {
                 "codex": {
@@ -164,6 +168,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         config_path = codex_dir / "config.toml"
@@ -187,6 +193,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         profile_path = codex_dir / "ctf.config.toml"
@@ -204,6 +212,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         profile_path = codex_dir / "ctf.config.toml"
@@ -220,6 +230,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         prompt_path = tmp_path / ".codex" / "prompts" / "ctf_optimized.md"
         prompt_path.parent.mkdir(parents=True)
         prompt_path.write_text("USER OWNED", encoding="utf-8")
@@ -236,6 +248,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install(custom_prompt="# First")
         assert success, message
@@ -255,6 +269,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         monkeypatch.setattr(
             installer_module,
             "check_ctf_status",
@@ -275,6 +291,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.status import check_ctf_status
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         base_config = codex_dir / "config.toml"
@@ -332,12 +350,14 @@ class TestCustomPromptParameter:
         status = check_ctf_status()
         assert status.installed is True
         assert status.profile_available is True
-        assert status.config_path == str(profile_config)
+        assert os.path.normpath(status.config_path) == os.path.normpath(str(profile_config))
 
     def test_codex_installer_preserves_existing_v2_profile_settings(self, tmp_path, monkeypatch):
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         profile_config = codex_dir / "ctf.config.toml"
@@ -371,6 +391,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         profile_config = codex_dir / "ctf.config.toml"
@@ -401,6 +423,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.status import check_ctf_status
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install(custom_prompt="# Replace CTF", injection_mode="replace")
 
@@ -416,7 +440,7 @@ class TestCustomPromptParameter:
         status = check_ctf_status()
         assert status.installed is True
         assert status.injection_mode == "replace"
-        assert status.prompt_path == str(tmp_path / ".codex" / "prompts" / "ctf_optimized.md")
+        assert os.path.normpath(status.prompt_path) == os.path.normpath(str(tmp_path / ".codex" / "prompts" / "ctf_optimized.md"))
 
         success, message = installer.uninstall()
         assert success, message
@@ -426,6 +450,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install(custom_prompt="# Replace CTF", injection_mode="replace")
         assert success, message
@@ -442,19 +468,23 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.status import check_ctf_status
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install(custom_prompt="# Append CTF", injection_mode="append")
 
         assert success, message
         status = check_ctf_status()
         assert status.injection_mode == "append"
-        assert status.prompt_path == str(tmp_path / ".codex" / "prompts" / "ctf_optimized.md")
+        assert os.path.normpath(status.prompt_path) == os.path.normpath(str(tmp_path / ".codex" / "prompts" / "ctf_optimized.md"))
         assert status.prompt_exists is True
 
     def test_codex_installer_uninstall_removes_v2_profile_and_legacy_entries(self, tmp_path, monkeypatch):
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         prompts_dir = codex_dir / "prompts"
         prompts_dir.mkdir(parents=True)
@@ -502,6 +532,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.status import check_ctf_status
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         prompts_dir = codex_dir / "prompts"
         prompts_dir.mkdir(parents=True)
@@ -518,14 +550,16 @@ class TestCustomPromptParameter:
         assert status.installed is True
         assert status.config_exists is True
         assert status.profile_available is True
-        assert status.config_path == str(profile_config)
-        assert status.prompt_path == str(prompt_path)
+        assert os.path.normpath(status.config_path) == os.path.normpath(str(profile_config))
+        assert os.path.normpath(status.prompt_path) == os.path.normpath(str(prompt_path))
         assert status.prompt_exists is True
 
     def test_codex_status_ignores_commented_instruction_keys(self, tmp_path, monkeypatch):
         from codex_session_patcher.ctf_config.status import check_ctf_status
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         prompts_dir = codex_dir / "prompts"
         prompts_dir.mkdir(parents=True)
@@ -546,12 +580,14 @@ class TestCustomPromptParameter:
 
         assert status.installed is True
         assert status.injection_mode == "replace"
-        assert status.prompt_path == str(prompt_path)
+        assert os.path.normpath(status.prompt_path) == os.path.normpath(str(prompt_path))
 
     def test_codex_global_install_cleans_legacy_profile_entries(self, tmp_path, monkeypatch):
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         profile_config = codex_dir / "ctf.config.toml"
@@ -598,6 +634,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.status import GLOBAL_MARKER, check_ctf_status
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install_global(injection_mode="replace")
 
@@ -616,6 +654,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install_global(injection_mode="replace")
         assert success, message
@@ -631,6 +671,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.status import GLOBAL_MARKER
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         base_config = codex_dir / "config.toml"
@@ -655,6 +697,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         base_config = codex_dir / "config.toml"
@@ -678,6 +722,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         base_config = codex_dir / "config.toml"
@@ -699,6 +745,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         base_config = codex_dir / "config.toml"
@@ -723,6 +771,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.status import GLOBAL_MARKER
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         codex_dir = tmp_path / ".codex"
         codex_dir.mkdir()
         base_config = codex_dir / "config.toml"
@@ -752,139 +802,25 @@ class TestCustomPromptParameter:
         assert 'model = "auto"' in cleaned_base
         assert '[projects."/tmp/work"]' in cleaned_base
 
-    def test_codex_prompt_save_updates_profile_developer_instructions(self, tmp_path, monkeypatch):
-        from web.backend import api
-
-        monkeypatch.setenv("HOME", str(tmp_path))
-        monkeypatch.setattr(api, "DEFAULT_CONFIG_FILE", str(tmp_path / ".codex-patcher" / "config.json"))
-        codex_dir = tmp_path / ".codex"
-        prompts_dir = codex_dir / "prompts"
-        prompts_dir.mkdir(parents=True)
-        prompt_path = prompts_dir / "ctf_optimized.md"
-        prompt_path.write_text(managed_prompt("# Old Prompt"), encoding="utf-8")
-        monkeypatch.setitem(api._CTF_PROMPT_PATHS, "codex", str(prompt_path))
-
-        profile_config = codex_dir / "ctf.config.toml"
-        profile_config.write_text(
-            '\n'.join([
-                PROFILE_MARKER,
-                'developer_instructions = """',
-                managed_prompt('# Old Prompt'),
-                '"""',
-                'model = "gpt-5.1-codex-max"',
-                '',
-            ]),
-            encoding="utf-8",
-        )
-
-        asyncio.run(api.save_ctf_prompt("codex", {"prompt": "# New Prompt"}))
-
-        profile_content = profile_config.read_text(encoding="utf-8")
-        assert "# New Prompt" in profile_content
-        assert "# Old Prompt" not in profile_content
-        assert 'model = "gpt-5.1-codex-max"' in profile_content
-        assert prompt_path.read_text(encoding="utf-8") == managed_prompt("# New Prompt")
 
     def test_prompt_save_does_not_overwrite_unmanaged_workspace_file(self, tmp_path, monkeypatch):
         from web.backend import api
 
         monkeypatch.setattr(api, "DEFAULT_CONFIG_FILE", str(tmp_path / "config.json"))
-        prompt_path = tmp_path / "opencode" / "AGENTS.md"
+        prompt_path = tmp_path / "claude_code" / "CLAUDE.md"
         prompt_path.parent.mkdir()
         prompt_path.write_text("USER OWNED", encoding="utf-8")
-        monkeypatch.setitem(api._CTF_PROMPT_PATHS, "opencode", str(prompt_path))
+        monkeypatch.setitem(api._CTF_PROMPT_PATHS, "claude_code", str(prompt_path))
 
-        result = asyncio.run(api.save_ctf_prompt("opencode", {"prompt": "# Saved for later"}))
+        result = asyncio.run(api.save_ctf_prompt("claude_code", {"prompt": "# Saved for later"}))
 
         assert result["success"] is True
         assert prompt_path.read_text(encoding="utf-8") == "USER OWNED"
         saved = json.loads((tmp_path / "config.json").read_text(encoding="utf-8"))
-        assert saved["ctf_prompts"]["opencode"]["prompt"] == "# Saved for later"
+        assert saved["ctf_prompts"]["claude_code"]["prompt"] == "# Saved for later"
 
-    def test_codex_prompt_get_reads_profile_developer_instructions(self, tmp_path, monkeypatch):
-        from web.backend import api
 
-        monkeypatch.setenv("HOME", str(tmp_path))
-        codex_dir = tmp_path / ".codex"
-        prompts_dir = codex_dir / "prompts"
-        prompts_dir.mkdir(parents=True)
-        prompt_path = prompts_dir / "ctf_optimized.md"
-        prompt_path.write_text("# Stale File Prompt", encoding="utf-8")
-        monkeypatch.setitem(api._CTF_PROMPT_PATHS, "codex", str(prompt_path))
 
-        profile_config = codex_dir / "ctf.config.toml"
-        profile_config.write_text(
-            f'{PROFILE_MARKER}\ndeveloper_instructions = """\n# Effective Prompt\n"""\n',
-            encoding="utf-8",
-        )
-
-        result = asyncio.run(api.get_ctf_prompt("codex"))
-
-        assert result["prompt"] == "# Effective Prompt"
-        assert result["is_installed"] is True
-
-    def test_codex_prompt_save_updates_global_developer_instructions(self, tmp_path, monkeypatch):
-        from codex_session_patcher.ctf_config.status import GLOBAL_MARKER
-        from web.backend import api
-
-        monkeypatch.setenv("HOME", str(tmp_path))
-        monkeypatch.setattr(api, "DEFAULT_CONFIG_FILE", str(tmp_path / ".codex-patcher" / "config.json"))
-        codex_dir = tmp_path / ".codex"
-        prompts_dir = codex_dir / "prompts"
-        prompts_dir.mkdir(parents=True)
-        prompt_path = prompts_dir / "ctf_optimized.md"
-        prompt_path.write_text("# Old Prompt", encoding="utf-8")
-        monkeypatch.setitem(api._CTF_PROMPT_PATHS, "codex", str(prompt_path))
-
-        base_config = codex_dir / "config.toml"
-        base_config.write_text(
-            '\n'.join([
-                'model = "auto"',
-                f'{GLOBAL_MARKER} 安全测试模式（由 codex-session-patcher 管理）',
-                'developer_instructions = """',
-                '# Old Prompt',
-                '"""',
-                '',
-                '[projects."/tmp/work"]',
-                'trust_level = "trusted"',
-                '',
-            ]),
-            encoding="utf-8",
-        )
-
-        asyncio.run(api.save_ctf_prompt("codex", {"prompt": "# New Global Prompt"}))
-
-        config_content = base_config.read_text(encoding="utf-8")
-        assert "# New Global Prompt" in config_content
-        assert "# Old Prompt" not in config_content
-        assert '[projects."/tmp/work"]' in config_content
-        assert prompt_path.read_text(encoding="utf-8") == managed_prompt("# New Global Prompt")
-
-    def test_codex_prompt_reset_updates_profile_developer_instructions(self, tmp_path, monkeypatch):
-        from web.backend import api
-
-        monkeypatch.setenv("HOME", str(tmp_path))
-        monkeypatch.setattr(api, "DEFAULT_CONFIG_FILE", str(tmp_path / ".codex-patcher" / "config.json"))
-        codex_dir = tmp_path / ".codex"
-        prompts_dir = codex_dir / "prompts"
-        prompts_dir.mkdir(parents=True)
-        prompt_path = prompts_dir / "ctf_optimized.md"
-        prompt_path.write_text(managed_prompt("# Old Prompt"), encoding="utf-8")
-        monkeypatch.setitem(api._CTF_PROMPT_PATHS, "codex", str(prompt_path))
-
-        profile_config = codex_dir / "ctf.config.toml"
-        profile_config.write_text(
-            f'{PROFILE_MARKER}\ndeveloper_instructions = """\n{managed_prompt("# Old Prompt")}\n"""\n',
-            encoding="utf-8",
-        )
-
-        default_prompt = api._get_default_prompt("codex")
-        asyncio.run(api.reset_ctf_prompt("codex"))
-
-        assert api._read_codex_developer_instructions() == default_prompt
-        profile_content = profile_config.read_text(encoding="utf-8")
-        assert "# Old Prompt" not in profile_content
-        assert prompt_path.read_text(encoding="utf-8") == default_prompt
 
     def test_codex_installer_uses_default_without_custom(self, tmp_path):
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
@@ -922,7 +858,7 @@ class TestCustomPromptParameter:
 
         with open(installer.prompt_path, 'r') as f:
             content = f.read()
-        assert content == managed_prompt(custom)
+        assert content == "<!-- managed-by: claude-session-patcher:ctf -->\n" + custom
 
         success, message = installer.uninstall()
         assert success, message
@@ -951,6 +887,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install()
         assert success, message
@@ -967,6 +905,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install()
         assert success, message
@@ -991,6 +931,8 @@ class TestCustomPromptParameter:
         from codex_session_patcher.ctf_config.installer import CTFConfigInstaller
 
         monkeypatch.setenv("HOME", str(tmp_path))
+
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
         installer = CTFConfigInstaller()
         success, message = installer.install()
         assert success, message

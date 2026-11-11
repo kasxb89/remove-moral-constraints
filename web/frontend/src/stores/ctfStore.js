@@ -6,10 +6,7 @@ export const useCTFStore = defineStore('ctf', {
     // CTF 配置状态
     status: null,
     loading: false,
-    installLoading: false,
-    globalInstallLoading: false,
     claudeInstallLoading: false,
-    opencodeInstallLoading: false,
 
     // 提示词改写
     originalRequest: '',
@@ -17,20 +14,16 @@ export const useCTFStore = defineStore('ctf', {
     rewriteStrategy: '',
     rewriteLoading: false,
     rewriteError: null,
-    rewriteTarget: 'codex',  // 'codex' | 'claude_code'
+    rewriteTarget: 'claude_code',
 
     // CTF 提示词内容
     prompts: {
-      codex: { prompt: '', is_default: true, is_installed: false, loading: false },
       claude_code: { prompt: '', is_default: true, is_installed: false, loading: false },
-      opencode: { prompt: '', is_default: true, is_installed: false, loading: false },
     },
 
     // CTF 提示词模板
     templates: {
-      codex: [],
       claude_code: [],
-      opencode: [],
     },
   }),
 
@@ -51,68 +44,10 @@ export const useCTFStore = defineStore('ctf', {
     },
 
     // 安装 CTF 配置
-    async install(injectionMode = 'append') {
-      this.installLoading = true
-      try {
-        const response = await api.post('/ctf/install', { injection_mode: injectionMode })
-        if (response.success && response.status) {
-          this.status = response.status
-        }
-        return response
-      } catch (error) {
-        return { success: false, message: error.message }
-      } finally {
-        this.installLoading = false
-      }
-    },
 
     // 卸载 CTF 配置
-    async uninstall() {
-      this.installLoading = true
-      try {
-        const response = await api.post('/ctf/uninstall')
-        if (response.success && response.status) {
-          this.status = response.status
-        }
-        return response
-      } catch (error) {
-        return { success: false, message: error.message }
-      } finally {
-        this.installLoading = false
-      }
-    },
 
-    // 启用全局模式 (Codex)
-    async installGlobal(injectionMode = 'append') {
-      this.globalInstallLoading = true
-      try {
-        const response = await api.post('/ctf/global/install', { injection_mode: injectionMode })
-        if (response.success && response.status) {
-          this.status = response.status
-        }
-        return response
-      } catch (error) {
-        return { success: false, message: error.message }
-      } finally {
-        this.globalInstallLoading = false
-      }
-    },
 
-    // 禁用全局模式 (Codex)
-    async uninstallGlobal() {
-      this.globalInstallLoading = true
-      try {
-        const response = await api.post('/ctf/global/uninstall')
-        if (response.success && response.status) {
-          this.status = response.status
-        }
-        return response
-      } catch (error) {
-        return { success: false, message: error.message }
-      } finally {
-        this.globalInstallLoading = false
-      }
-    },
 
     // 安装 Claude Code CTF 配置
     async installClaude() {
@@ -146,37 +81,7 @@ export const useCTFStore = defineStore('ctf', {
       }
     },
 
-    // 安装 OpenCode CTF 配置
-    async installOpencode() {
-      this.opencodeInstallLoading = true
-      try {
-        const response = await api.post('/ctf/opencode/install')
-        if (response.success && response.status) {
-          this.status = response.status
-        }
-        return response
-      } catch (error) {
-        return { success: false, message: error.message }
-      } finally {
-        this.opencodeInstallLoading = false
-      }
-    },
 
-    // 卸载 OpenCode CTF 配置
-    async uninstallOpencode() {
-      this.opencodeInstallLoading = true
-      try {
-        const response = await api.post('/ctf/opencode/uninstall')
-        if (response.success && response.status) {
-          this.status = response.status
-        }
-        return response
-      } catch (error) {
-        return { success: false, message: error.message }
-      } finally {
-        this.opencodeInstallLoading = false
-      }
-    },
 
     // 获取 CTF 提示词
     async fetchPrompt(tool) {

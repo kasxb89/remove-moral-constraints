@@ -19,7 +19,7 @@ class ConfigError(ValueError):
 
 
 def default_config_file() -> str:
-    return os.path.expanduser("~/.codex-patcher/config.json")
+    return os.path.expanduser("~/.claude-patcher/config.json")
 
 
 DEFAULT_CONFIG_FILE = default_config_file()

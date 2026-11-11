@@ -2,7 +2,7 @@
 Pydantic 数据模型
 """
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Literal
 from pydantic import BaseModel, field_validator
 from enum import Enum
 
@@ -71,7 +71,7 @@ class Session(BaseModel):
     refusal_count: int = 0
     has_backup: bool = False
     backup_count: int = 0
-    format: SessionFormatEnum = SessionFormatEnum.CODEX
+    format: SessionFormatEnum = SessionFormatEnum.CLAUDE_CODE
     project_path: Optional[str] = None
 
 
@@ -195,36 +195,24 @@ class WSMessage(BaseModel):
 # CTF 配置相关模型
 
 class CTFStatusResponse(BaseModel):
-    """CTF 配置状态响应"""
-    # Codex
-    installed: bool
-    config_exists: bool
-    prompt_exists: bool
-    profile_available: bool
-    global_installed: bool = False
-    injection_mode: str = "none"
-    global_injection_mode: str = "none"
-    config_path: Optional[str] = None
-    prompt_path: Optional[str] = None
-    # Claude Code
+    """Claude Code workspace status."""
     claude_installed: bool = False
     claude_workspace_exists: bool = False
     claude_prompt_exists: bool = False
     claude_workspace_path: Optional[str] = None
     claude_prompt_path: Optional[str] = None
-    # OpenCode
-    opencode_installed: bool = False
-    opencode_workspace_exists: bool = False
-    opencode_prompt_exists: bool = False
-    opencode_workspace_path: Optional[str] = None
-    opencode_prompt_path: Optional[str] = None
+    claude_global_prompt_path: Optional[str] = None
+    claude_global_installed: bool = False
+    claude_scope: str = "global"
+    claude_cli_available: bool = False
+    activation_command: str = "claude-ctf"
 
 
 class CTFInstallResponse(BaseModel):
     """CTF 配置安装响应"""
     success: bool
     message: str
-    profile_command: str = "codex -p ctf"
+    profile_command: str = ""
     activation_command: str = ""
     status: Optional[CTFStatusResponse] = None
 
@@ -237,7 +225,7 @@ class CTFInstallRequest(BaseModel):
 class PromptRewriteRequest(BaseModel):
     """提示词改写请求"""
     original_request: str
-    target: str = "codex"  # "codex" | "claude_code"
+    target: Literal["claude_code"] = "claude_code"  # "codex" | "claude_code"
 
 
 class PromptRewriteResponse(BaseModel):

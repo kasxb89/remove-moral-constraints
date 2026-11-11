@@ -1,178 +1,49 @@
 <template>
   <div class="help-panel">
-    <n-space vertical size="large">
-      <!-- 项目介绍 -->
-      <n-card title="Codex Session Patcher" size="small">
-        <n-space vertical>
-          <p>一个帮助你在安全测试场景下更顺畅使用 Codex CLI 和 Codex App 的工具集。</p>
-          <n-ul>
-            <n-li><strong>CTF/渗透模式</strong>：注入安全测试上下文，降低被拒绝概率</n-li>
-            <n-li><strong>提示词改写</strong>：将敏感请求改写为更易接受的形式</n-li>
-            <n-li><strong>会话清理</strong>：清理已产生的拒绝回复，恢复会话继续</n-li>
-          </n-ul>
-        </n-space>
-      </n-card>
+    <h1>Claude Session Patcher</h1>
+    <p>{{ $t('claude.intro') }}</p>
 
-      <!-- 局限性 -->
-      <n-card title="项目局限性" size="small">
-        <n-collapse>
-          <n-collapse-item title="配置注入的边界" name="config-limits">
-            <n-ul>
-              <n-li>无法覆盖平台最高层的安全策略</n-li>
-              <n-li>对于明确的违规请求仍可能被拒绝</n-li>
-              <n-li>效果因请求类型和模型版本而异</n-li>
-            </n-ul>
-          </n-collapse-item>
+    <section>
+      <h2>{{ $t('claude.startTitle') }}</h2>
+      <p>{{ $t('claude.installHelp') }}</p>
+      <button class="copy-command" type="button" :title="$t('common.copy')" @click="copyCommand('claude-patcher --install-config')"><code>claude-patcher --install-config</code></button>
+      <p>{{ $t('claude.launchHelp') }}</p>
+      <button class="copy-command" type="button" :title="$t('common.copy')" @click="copyCommand('claude')"><code>claude</code></button>
+      <p class="workspace-path">{{ $t('claude.globalPrompt') }}: <code>{{ ctfStore.status?.claude_global_prompt_path || '~/.claude/CLAUDE.md' }}</code></p>
+      <n-text depth="2">{{ $t('claude.location') }}</n-text>
+    </section>
 
-          <n-collapse-item title="提示词改写的局限" name="rewrite-limits">
-            <n-ul>
-              <n-li>不能改变用户的真实意图</n-li>
-              <n-li>改写后仍可能被拒绝</n-li>
-              <n-li>需要配合 CTF/渗透模式使用效果更好</n-li>
-            </n-ul>
-          </n-collapse-item>
+    <section>
+      <h2>{{ $t('claude.cleanTitle') }}</h2>
+      <ol><li v-for="(step, index) in $tm('claude.cleanSteps')" :key="index">{{ $rt(step) }}</li></ol>
+    </section>
 
-          <n-collapse-item title="会话清理的局限" name="clean-limits">
-            <n-ul>
-              <n-li>只能清理已产生的拒绝回复</n-li>
-              <n-li>无法保证后续对话不被拒绝</n-li>
-              <n-li>清理后需要 resume 继续会话</n-li>
-            </n-ul>
-          </n-collapse-item>
-        </n-collapse>
-      </n-card>
-
-      <!-- CTF 模式影响 -->
-      <n-card title="CTF/渗透模式对普通任务的影响" size="small">
-        <n-space vertical>
-          <n-alert type="info" :bordered="false">
-            提供两种模式：<strong>Profile 模式</strong>只适用于 CLI 指定会话，<strong>全局模式</strong>对新的 CLI 和 Codex App 会话生效。
-          </n-alert>
-
-          <n-h4>两种模式对比</n-h4>
-          <n-table :bordered="false" :single-line="false" size="small">
-            <thead>
-              <tr>
-                <th>模式</th>
-                <th>生效范围</th>
-                <th>启用方式</th>
-                <th>适用场景</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><n-tag type="info" size="small">Profile</n-tag></td>
-                <td>仅 Profile 启动的 CLI 会话</td>
-                <td>CLI：<button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex -p ctf')"><code>codex -p ctf</code></button><br />App：不支持临时 Profile</td>
-                <td>偶尔打 CTF</td>
-              </tr>
-              <tr>
-                <td><n-tag type="warning" size="small">全局</n-tag></td>
-                <td>新的 CLI 和 Codex App 会话</td>
-                <td>启用后 CLI：<button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex')"><code>codex</code></button><br />App：macOS 终端 / Windows PowerShell 或 CMD：<button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex app .')"><code>codex app .</code></button></td>
-                <td>App 使用或持续安全测试</td>
-              </tr>
-            </tbody>
-          </n-table>
-
-          <n-h4>启用后的变化</n-h4>
-          <n-ul>
-            <n-li><strong>执行风格</strong>：更直接、更简洁，偏向快速验证</n-li>
-            <n-li><strong>安全视角</strong>：写正常代码时可能过度关注安全问题</n-li>
-            <n-li><strong>环境假设</strong>：可能误判真实网站为靶场</n-li>
-          </n-ul>
-
-          <n-h4>建议</n-h4>
-          <n-ul>
-            <n-li>CLI 偶尔打 CTF：使用 <button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex -p ctf')"><code>codex -p ctf</code></button></n-li>
-            <n-li>Codex App 使用渗透模式：先启用全局模式，再从项目目录启动。macOS 终端和 Windows PowerShell/CMD 都运行 <button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex app .')"><code>codex app .</code></button></n-li>
-            <n-li>持续安全测试：启用全局模式，结束后禁用</n-li>
-            <n-li>日常开发：禁用全局模式即可</n-li>
-          </n-ul>
-        </n-space>
-      </n-card>
-
-      <!-- 推荐工作流 -->
-      <n-card title="推荐工作流" size="small">
-        <n-tabs type="line">
-          <n-tab-pane name="ctf" tab="CTF/安全测试">
-            <n-steps vertical :current="0">
-              <n-step title="启用 CTF/渗透模式">
-                在「提示词增强」页面点击启用
-              </n-step>
-              <n-step title="新开会话">
-                CLI 使用 <button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex -p ctf')"><code>codex -p ctf</code></button>；如果用 Codex App，请先启用全局模式，再从项目目录运行 <button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex app .')"><code>codex app .</code></button>（macOS 终端、Windows PowerShell/CMD 通用）
-              </n-step>
-              <n-step title="发送请求">
-                如果被拒绝，使用提示词改写器
-              </n-step>
-              <n-step title="清理会话">
-                如果仍被拒绝，使用会话清理功能
-              </n-step>
-              <n-step title="继续对话">
-                使用 <button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex resume')"><code>codex resume</code></button> 继续
-              </n-step>
-            </n-steps>
-          </n-tab-pane>
-
-          <n-tab-pane name="normal" tab="日常开发">
-            <n-steps vertical :current="0">
-              <n-step title="不启用 CTF 模式">
-                或使用后及时禁用
-              </n-step>
-              <n-step title="正常使用">
-                直接运行 <button class="copy-command" type="button" :title="$t('common.copy')" :aria-label="$t('common.copy')" @click="copyCommand('codex')"><code>codex</code></button>，不加 -p 参数
-              </n-step>
-            </n-steps>
-          </n-tab-pane>
-        </n-tabs>
-      </n-card>
-
-      <!-- 适用场景 -->
-      <n-card title="适用场景" size="small">
-        <n-space>
-          <n-tag type="info" :bordered="false">CTF 比赛</n-tag>
-          <n-tag type="info" :bordered="false">授权渗透测试</n-tag>
-          <n-tag type="info" :bordered="false">Bug Bounty</n-tag>
-          <n-tag type="info" :bordered="false">安全学习/研究</n-tag>
-          <n-tag type="info" :bordered="false">漏洞分析</n-tag>
-        </n-space>
-      </n-card>
-    </n-space>
+    <section>
+      <h2>{{ $t('claude.commandsTitle') }}</h2>
+      <ul class="command-list">
+        <li v-for="command in commands" :key="command">
+          <button class="copy-command" type="button" :title="$t('common.copy')" @click="copyCommand(command)"><code>{{ command }}</code></button>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMessage } from 'naive-ui'
+import { useCTFStore } from '../stores/ctfStore'
 
 const { t } = useI18n()
 const message = useMessage()
-
-async function writeClipboard(text) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text)
-    return
-  }
-
-  const textarea = document.createElement('textarea')
-  textarea.value = text
-  textarea.setAttribute('readonly', '')
-  textarea.style.position = 'fixed'
-  textarea.style.left = '-9999px'
-  document.body.appendChild(textarea)
-  textarea.select()
-
-  try {
-    if (!document.execCommand('copy')) throw new Error('copy failed')
-  } finally {
-    document.body.removeChild(textarea)
-  }
-}
+const ctfStore = useCTFStore()
+const commands = ['claude', 'claude-ctf', 'claude-patcher --status', 'claude-patcher --dry-run --latest', 'claude-patcher --latest', 'claude-patcher-web']
+onMounted(() => { if (!ctfStore.status) ctfStore.fetchStatus() })
 
 async function copyCommand(command) {
   try {
-    await writeClipboard(command)
+    await navigator.clipboard.writeText(command)
     message.success(t('common.copied'))
   } catch {
     message.error(t('common.error'))
@@ -181,55 +52,20 @@ async function copyCommand(command) {
 </script>
 
 <style scoped>
-.help-panel {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.n-card {
-  background: var(--color-bg-1);
-}
-
-code {
-  background: #333;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.copy-command {
-  border: 0;
-  background: transparent;
-  padding: 0;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-
-.copy-command code {
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.copy-command:hover code,
-.copy-command:focus-visible code {
-  background: rgba(99, 226, 183, 0.18);
-  box-shadow: 0 0 0 1px rgba(99, 226, 183, 0.45);
-}
-
-.copy-command:focus-visible {
-  outline: none;
-}
-
-p {
-  margin: 0 0 12px 0;
-}
-
-:deep(.n-ul) {
-  margin: 8px 0;
-  padding-left: 20px;
-}
-
-:deep(.n-li) {
-  margin: 4px 0;
+.help-panel { max-width: 960px; margin: 0 auto; padding: 24px; }
+h1 { margin: 0 0 12px; font-size: 24px; }
+h2 { margin: 0 0 16px; font-size: 18px; }
+section { margin-top: 32px; }
+p { margin: 12px 0; line-height: 1.7; }
+li { margin-bottom: 12px; line-height: 1.7; }
+.workspace-path { overflow-wrap: anywhere; }
+.command-list { list-style: none; padding: 0; }
+.copy-command { color: var(--color-text-1); border: 1px solid var(--color-border); border-radius: 6px; background: var(--color-bg-2); cursor: pointer; padding: 8px 12px; max-width: 100%; text-align: left; }
+.copy-command code { white-space: normal; overflow-wrap: anywhere; }
+.copy-command:hover { border-color: var(--color-primary-hover); }
+.copy-command:focus-visible { outline: 2px solid var(--color-primary-hover); outline-offset: 3px; }
+@media (max-width: 640px) {
+  .help-panel { padding: 16px; }
+  .copy-command { min-height: 44px; }
 }
 </style>

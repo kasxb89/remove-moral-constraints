@@ -25,14 +25,14 @@ from .security import LOCAL_ORIGIN_REGEX, is_allowed_origin, is_loopback_host
 async def lifespan(app: FastAPI):
     """应用生命周期"""
     # 启动时
-    safe_print("🚀 Codex Session Patcher Web UI 启动中...")
+    safe_print("🚀 Claude Session Patcher Web UI 启动中...")
     yield
     # 关闭时
-    safe_print("👋 Codex Session Patcher Web UI 已关闭")
+    safe_print("👋 Claude Session Patcher Web UI 已关闭")
 
 
 app = FastAPI(
-    title="Codex Session Patcher",
+    title="Claude Session Patcher",
     description="清理 AI 拒绝回复，恢复会话",
     version=__version__,
     lifespan=lifespan
@@ -67,7 +67,7 @@ if os.path.exists(frontend_dist):
     app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="static")
 
 
-def run_server(host: str = "127.0.0.1", port: int = 47832):
+def run_server(host: str = "127.0.0.1", port: int = 8080):
     """启动服务器"""
     import uvicorn
     safe_print(f"📍 访问地址: http://{host}:{port}")

@@ -57,7 +57,7 @@ def extract_conversation_context(
     parsed_lines: list[dict],
     refusal_index: int,
     max_messages: int = 5,
-    session_format: SessionFormat = SessionFormat.CODEX,
+    session_format: SessionFormat = SessionFormat.CLAUDE_CODE,
 ) -> list[dict]:
     """从拒绝消息位置向前提取对话上下文"""
     strategy = get_format_strategy(session_format)
@@ -219,7 +219,7 @@ async def generate_ai_rewrite(
     file_path: str,
     settings: Settings,
     custom_keywords: Optional[dict] = None,
-    session_format: SessionFormat = SessionFormat.CODEX,
+    session_format: SessionFormat = SessionFormat.CLAUDE_CODE,
     session_id: Optional[str] = None,
 ) -> AIRewriteResponse:
     """生成 AI 改写内容 - 处理所有拒绝消息"""

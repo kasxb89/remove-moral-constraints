@@ -1,5 +1,5 @@
 #!/bin/bash
-# Codex Session Patcher Web UI 启动脚本
+# Claude Session Patcher Web UI 启动脚本
 
 set -euo pipefail
 
@@ -12,7 +12,7 @@ PORT="${PORT:-8080}"
 
 source "$SCRIPT_DIR/web-common.sh"
 
-echo "🚀 Codex Session Patcher Web UI"
+echo "🚀 Claude Session Patcher Web UI"
 echo "================================"
 
 PYTHON_BIN="$(web_pick_python_bin || true)"

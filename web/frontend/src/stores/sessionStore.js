@@ -12,44 +12,18 @@ export const useSessionStore = defineStore('session', () => {
   const aiRewrite = ref(null)
   const aiRewriteLoading = ref(false)
   const lastError = ref(null) // 最近一次错误信息，组件层可监听并展示
-  const activeTab = ref('codex') // 'codex' | 'claude_code' | 'opencode'
+  const activeTab = ref('claude_code')
   const isSearchMode = ref(false) // 是否处于搜索模式
-  let _tabInitialized = false
 
-  // 按格式拆分
-  const codexSessions = computed(() => sessions.value.filter(s => s.format === 'codex'))
   const claudeSessions = computed(() => sessions.value.filter(s => s.format === 'claude_code'))
-  const opencodeSessions = computed(() => sessions.value.filter(s => s.format === 'opencode'))
-
-  // 当前 Tab 的会话
-  const activeTabSessions = computed(() => {
-    if (activeTab.value === 'codex') return codexSessions.value
-    if (activeTab.value === 'opencode') return opencodeSessions.value
-    return claudeSessions.value
-  })
+  const activeTabSessions = claudeSessions
 
   async function fetchSessions(checkRefusal = true) {
     loading.value = true
     try {
       // 固定拉取全部格式，客户端按 format 字段拆分
-      const data = await api.getSessions(!checkRefusal, 'auto')
+      const data = await api.getSessions(!checkRefusal, 'claude_code')
       sessions.value = data.sessions
-
-      // 仅首次加载时自动选 Tab，刷新时保留当前 Tab
-      if (!_tabInitialized) {
-        _tabInitialized = true
-        // Codex 优先，有数据就停在 Codex
-        if (codexSessions.value.length > 0) {
-          activeTab.value = 'codex'
-        } else {
-          const settingsStore = useSettingsStore()
-          if (settingsStore.claudeCodeEnabled && claudeSessions.value.length > 0) {
-            activeTab.value = 'claude_code'
-          } else if (opencodeSessions.value.length > 0) {
-            activeTab.value = 'opencode'
-          }
-        }
-      }
 
       // 自动选中当前 Tab 的第一条会话（仅初次无选中时）
       if (!selectedId.value && activeTabSessions.value.length > 0) {
@@ -64,6 +38,7 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   function setActiveTab(tab) {
+    if (tab !== 'claude_code') return
     activeTab.value = tab
     // Tab 切换时重置预览，但不重新请求 API
     const stillExists = activeTabSessions.value.find(s => s.id === selectedId.value)
@@ -167,7 +142,7 @@ export const useSessionStore = defineStore('session', () => {
     isSearchMode.value = true
     const previousSelectedId = selectedId.value
     try {
-      const data = await api.searchSessions(query, 'auto')
+      const data = await api.searchSessions(query, 'claude_code')
       sessions.value = data.sessions
       // 如果之前有选中的会话，且在搜索结果中，保留选中状态和预览
       const stillExists = previousSelectedId && data.sessions.some(s => s.id === previousSelectedId)
@@ -222,9 +197,7 @@ export const useSessionStore = defineStore('session', () => {
     lastError,
     activeTab,
     isSearchMode,
-    codexSessions,
     claudeSessions,
-    opencodeSessions,
     activeTabSessions,
     fetchSessions,
     setActiveTab,

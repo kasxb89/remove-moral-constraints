@@ -11,34 +11,8 @@
       </div>
     </div>
 
-    <!-- 格式 Tab（多格式时显示） -->
-    <div v-if="settingsStore.claudeCodeEnabled || settingsStore.opencodeEnabled" class="format-tabs">
-      <button
-        class="format-tab"
-        :class="{ active: sessionStore.activeTab === 'codex' }"
-        @click="sessionStore.setActiveTab('codex')"
-      >
-        {{ $t('session.format_codex') }}
-        <span class="tab-count">{{ sessionStore.codexSessions.length }}</span>
-      </button>
-      <button
-        v-if="settingsStore.claudeCodeEnabled"
-        class="format-tab"
-        :class="{ active: sessionStore.activeTab === 'claude_code' }"
-        @click="sessionStore.setActiveTab('claude_code')"
-      >
-        {{ $t('session.format_claude') }}
-        <span class="tab-count">{{ sessionStore.claudeSessions.length }}</span>
-      </button>
-      <button
-        v-if="settingsStore.opencodeEnabled"
-        class="format-tab"
-        :class="{ active: sessionStore.activeTab === 'opencode' }"
-        @click="sessionStore.setActiveTab('opencode')"
-      >
-        {{ $t('session.format_opencode') }}
-        <span class="tab-count">{{ sessionStore.opencodeSessions.length }}</span>
-      </button>
+    <div class="format-tabs">
+      <span class="format-tab active">Claude Code <span class="tab-count">{{ sessionStore.claudeSessions.length }}</span></span>
     </div>
 
     <!-- 搜索框 -->
@@ -111,7 +85,7 @@
         <n-spin size="medium" />
       </div>
       <div v-else class="list-content">
-        <n-empty v-if="filteredSessions.length === 0 && visibleSessions.length === 0" :description="$t('session.empty')" />
+        <n-empty v-if="filteredSessions.length === 0 && visibleSessions.length === 0" :description="$t('claude.empty')" />
         <!-- 当前过滤模式下无结果，但实际有会话时给出提示 -->
         <div v-if="filteredSessions.length === 0 && visibleSessions.length > 0" class="filter-hint">
           <n-text depth="3" style="font-size: 12px">{{ visibleSessions.length }} 条会话被过滤隐藏</n-text>
@@ -216,7 +190,7 @@ const expandedIds = reactive(new Set())
 const expandedGroups = reactive(new Set([t('session.today'), t('session.yesterday')]))
 
 const searchQuery = ref('')
-const filterMode = ref('refusal')  // 'all' | 'refusal' | 'clean' | 'patched'
+const filterMode = ref(settingsStore.showAllSessions ? 'all' : 'refusal')  // 'all' | 'refusal' | 'clean' | 'patched'
 const loading = ref(false)
 
 // 防抖定时器
@@ -266,27 +240,7 @@ watch(() => settingsStore.showAllSessions, (val) => {
   }
 })
 
-// 关闭 Claude Code 支持时，强制切回 Codex
-watch(() => settingsStore.claudeCodeEnabled, (val) => {
-  if (!val && sessionStore.activeTab === 'claude_code') {
-    sessionStore.setActiveTab('codex')
-  }
-})
-
-// 关闭 OpenCode 支持时，强制切回 Codex
-watch(() => settingsStore.opencodeEnabled, (val) => {
-  if (!val && sessionStore.activeTab === 'opencode') {
-    sessionStore.setActiveTab('codex')
-  }
-})
-
-// 当前可见的会话列表（受格式开关影响）
-const visibleSessions = computed(() => {
-  if (!settingsStore.claudeCodeEnabled && sessionStore.activeTab === 'claude_code') {
-    return sessionStore.codexSessions
-  }
-  return sessionStore.activeTabSessions
-})
+const visibleSessions = computed(() => sessionStore.claudeSessions)
 
 const refusalCount = computed(() => {
   return visibleSessions.value.filter(s => s.has_refusal).length
@@ -611,7 +565,7 @@ function formatTime(mtime) {
 /* 有拒绝内容的会话 - 高亮显示 */
 .session-item.has-refusal {
   background: rgba(208, 48, 80, 0.1);
-  border-left: 3px solid #d03050;
+  border-left: 1px solid var(--color-error);
 }
 
 .session-item.has-refusal:hover {

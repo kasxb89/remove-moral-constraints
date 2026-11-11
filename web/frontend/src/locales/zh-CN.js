@@ -1,4 +1,23 @@
 export default {
+  claude: {
+    globalScope: "所有项目",
+    globalPrompt: "用户级全局提示词",
+  "intro": "管理 Claude Code 会话、备份和用户级全局提示词。",
+  "startTitle": "在任意项目启动 Claude Code",
+  "installHelp": "首次使用时启用用户级全局提示词：",
+  "launchHelp": "在你的项目目录运行 claude，新会话自动读取全局提示词。需要使用系统代理时可运行 claude-ctf，它会保留当前目录。",
+  "workspace": "专用工作目录",
+  "location": "Claude Code 会话保存在 ~/.claude/projects，列表按项目和时间显示。",
+  "cleanTitle": "预览、清理和恢复",
+  "cleanSteps": [
+    "在会话列表中选择一个 Claude 会话。",
+    "先查看预览和差异，选择要处理的内容。",
+    "执行清理时默认创建备份，可在备份面板恢复。",
+    "回到原项目目录，使用 claude --continue 继续会话。"
+  ],
+  "commandsTitle": "常用命令",
+  "empty": "暂无 Claude 会话。运行 claude-ctf 并完成一次对话后刷新。"
+},
   // 通用
   common: {
     save: '保存',
@@ -174,7 +193,7 @@ export default {
     disableGlobal: '禁用全局',
     confirmDisableCtf: '确定要禁用 CTF/渗透模式吗？',
     confirmDisableGlobal: '确定要禁用全局模式吗？禁用后新的会话将不再自动生效。',
-    confirmDisableClaude: '确定要禁用 Claude Code CTF/渗透模式吗？将删除 CTF 工作空间中的 CLAUDE.md。',
+    confirmDisableClaude: "确定要移除本工具写入的 Claude 全局提示词吗？其他全局内容会保留。",
     promptRewrite: '提示词改写',
     promptRewriteDesc: '输入可能被拒绝的请求，AI 会结合已注入的 CTF 系统提示词进行改写，配合 CTF 模式使用效果更好',
     aiRewriteBtn: 'AI 改写',
@@ -197,9 +216,9 @@ export default {
     noAiConfig: '请先在「设置」中配置 AI API',
     aiAnalyze: 'AI 改写',
     aiGenerated: 'AI 已生成',
-    claudeDesc: '创建专用 CTF 工作空间（~/.claude-ctf-workspace），通过项目级 CLAUDE.md 注入安全测试上下文。',
+    claudeDesc: "将提示词写入 Claude Code 用户级全局 CLAUDE.md，对所有项目的新会话生效。",
     activationCommand: '激活命令',
-    claudeWarning: '需在该目录下启动 Claude Code：cd ~/.claude-ctf-workspace && claude',
+    claudeWarning: "全局提示词在新会话中加载；更改后请新开 Claude Code 会话。",
     confirmDisableOpencode: '确定要禁用 OpenCode CTF/渗透模式吗？将删除 CTF 工作空间中的 AGENTS.md。',
     opencodeDesc: '创建专用 CTF 工作空间（~/.opencode-ctf-workspace），通过 AGENTS.md 注入安全测试上下文。',
     opencodeWarning: 'OpenCode 没有 profile 功能，CTF 模式需要从专用工作空间目录启动。',
@@ -262,7 +281,7 @@ export default {
   // 帮助
   help: {
     title: '帮助',
-    intro: '一个帮助你在安全测试场景下更顺畅使用 Codex CLI 的工具集。',
+    intro: "管理 Claude Code 会话、备份和用户级全局提示词。",
     features: {
       ctf: 'CTF/渗透模式：注入安全测试上下文，降低被拒绝概率',
       rewrite: '提示词改写：将敏感请求改写为更易接受的形式',

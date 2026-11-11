@@ -59,11 +59,11 @@ jobs:
         shell: bash
         run: |
           WHEEL="$(pwd)/$(find dist -maxdepth 1 -name '*.whl' -print -quit)"
-          python -m venv "$RUNNER_TEMP/codex-patcher-smoke"
-          "$RUNNER_TEMP/codex-patcher-smoke/bin/python" -m pip install "$WHEEL[web]"
+          python -m venv "$RUNNER_TEMP/claude-patcher-smoke"
+          "$RUNNER_TEMP/claude-patcher-smoke/bin/python" -m pip install "$WHEEL[web]"
           cd "$RUNNER_TEMP"
-          "$RUNNER_TEMP/codex-patcher-smoke/bin/codex-patcher" --help >/dev/null
-          "$RUNNER_TEMP/codex-patcher-smoke/bin/python" - <<'PY'
+          "$RUNNER_TEMP/claude-patcher-smoke/bin/claude-patcher" --help >/dev/null
+          "$RUNNER_TEMP/claude-patcher-smoke/bin/python" - <<'PY'
           from importlib.resources import files
           import codex_session_patcher.core
           import codex_session_patcher.ctf_config.installer

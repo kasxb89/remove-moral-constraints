@@ -104,6 +104,7 @@ def test_vite_proxy_test_ready_accepts_installed_frontend_deps(tmp_path: Path):
     assert vite_proxy_test_ready(frontend_dir=frontend_dir, node_bin="/usr/bin/node")
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_find_available_port_checks_requested_host_without_lsof(tmp_path: Path):
     host = find_non_loopback_ipv4()
     if not host:
@@ -148,6 +149,7 @@ def test_find_available_port_checks_requested_host_without_lsof(tmp_path: Path):
         probe.close()
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_find_available_port_fails_fast_for_non_bindable_host():
     script = "\n".join(
         [
@@ -173,6 +175,7 @@ def test_find_available_port_fails_fast_for_non_bindable_host():
     assert "203.0.113.10" in result.stderr
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_find_available_port_checks_localhost_across_address_families():
     listener = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
     try:
@@ -202,6 +205,7 @@ def test_find_available_port_checks_localhost_across_address_families():
     assert int(result.stdout.strip()) > port
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_pick_python_bin_supports_versioned_interpreter_names(tmp_path: Path):
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
@@ -221,6 +225,7 @@ def test_pick_python_bin_supports_versioned_interpreter_names(tmp_path: Path):
     assert result.stdout.strip() == str(versioned_python)
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 @pytest.mark.parametrize(
     ("version", "expected"),
     [
@@ -253,6 +258,7 @@ def test_node_version_gate_matches_vite_requirement(tmp_path: Path, version: str
     assert result.stdout.strip() == expected
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_pick_python_bin_prefers_generic_launchers_before_versioned_fallbacks(tmp_path: Path):
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
@@ -272,6 +278,7 @@ def test_pick_python_bin_prefers_generic_launchers_before_versioned_fallbacks(tm
     assert result.stdout.strip() == str(generic_python)
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_pick_python_bin_supports_py_launcher(tmp_path: Path):
     fake_bin = tmp_path / "bin"
     state_dir = tmp_path / "state"
@@ -319,6 +326,7 @@ def test_pick_python_bin_supports_py_launcher(tmp_path: Path):
     assert lines[1] == "ok"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_python_deps_install_is_skipped_when_stamp_is_fresh(tmp_path: Path):
     state_dir = tmp_path / "state"
     state_dir.mkdir()
@@ -345,6 +353,7 @@ def test_python_deps_install_is_skipped_when_stamp_is_fresh(tmp_path: Path):
     assert result.stdout.strip() == "skip"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_python_deps_install_is_skipped_when_imports_are_ready_without_stamp(tmp_path: Path):
     state_dir = tmp_path / "state"
     state_dir.mkdir()
@@ -367,6 +376,7 @@ def test_python_deps_install_is_skipped_when_imports_are_ready_without_stamp(tmp
     assert (state_dir / "python-web-deps.stamp").exists()
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_frontend_install_required_when_package_lock_is_newer(tmp_path: Path):
     frontend_dir = tmp_path / "frontend"
     frontend_dir.mkdir()
@@ -404,6 +414,7 @@ def test_frontend_install_required_when_package_lock_is_newer(tmp_path: Path):
     assert result.stdout.strip() == "install"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_frontend_install_is_skipped_without_npm_hidden_lock_when_tree_is_current(tmp_path: Path):
     frontend_dir = tmp_path / "frontend"
     state_dir = tmp_path / "state"
@@ -445,6 +456,7 @@ def test_frontend_install_is_skipped_without_npm_hidden_lock_when_tree_is_curren
     assert result.stdout.strip() == "skip"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_frontend_install_required_when_runtime_packages_are_missing_despite_fresh_stamp(tmp_path: Path):
     frontend_dir = tmp_path / "frontend"
     state_dir = tmp_path / "state"
@@ -492,6 +504,7 @@ def test_frontend_install_required_when_runtime_packages_are_missing_despite_fre
     assert result.stdout.strip() == "install"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_frontend_build_is_skipped_when_dist_is_current(tmp_path: Path):
     frontend_dir = tmp_path / "frontend"
     dist_dir = frontend_dir / "dist"
@@ -536,6 +549,7 @@ def test_frontend_build_is_skipped_when_dist_is_current(tmp_path: Path):
     assert result.stdout.strip() == "skip"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_frontend_build_runs_when_source_file_is_deleted_after_dist(tmp_path: Path):
     frontend_dir = tmp_path / "frontend"
     dist_dir = frontend_dir / "dist"
@@ -580,6 +594,7 @@ def test_frontend_build_runs_when_source_file_is_deleted_after_dist(tmp_path: Pa
     assert result.stdout.strip() == "build"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_frontend_build_runs_when_dist_assets_are_missing(tmp_path: Path):
     frontend_dir = tmp_path / "frontend"
     dist_dir = frontend_dir / "dist"
@@ -633,6 +648,7 @@ def test_frontend_build_runs_when_dist_assets_are_missing(tmp_path: Path):
     assert result.stdout.strip() == "build"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_start_web_skips_node_requirement_when_frontend_assets_are_current(tmp_path: Path):
     project_dir = tmp_path / "project"
     scripts_dir = project_dir / "scripts"
@@ -714,6 +730,7 @@ def test_start_web_skips_node_requirement_when_frontend_assets_are_current(tmp_p
     assert "encoding=utf-8" in result.stdout
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_start_web_skips_frontend_install_when_dist_is_current_without_node_modules(tmp_path: Path):
     project_dir = tmp_path / "project"
     scripts_dir = project_dir / "scripts"
@@ -837,6 +854,7 @@ def test_vite_proxy_wraps_ipv6_backend_host():
     assert result.stdout.strip() == "http://[::1]:9090"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_install_script_creates_working_wrapper_with_py_launcher(tmp_path: Path):
     project_dir = tmp_path / "project"
     scripts_dir = project_dir / "scripts"
@@ -905,7 +923,7 @@ def test_install_script_creates_working_wrapper_with_py_launcher(tmp_path: Path)
 
     assert install_result.returncode == 0, install_result.stderr
 
-    wrapper_path = home_dir / ".local" / "bin" / "codex-patcher"
+    wrapper_path = home_dir / ".local" / "bin" / "claude-patcher"
     assert wrapper_path.exists()
     wrapper_contents = wrapper_path.read_text(encoding="utf-8")
     assert "web-common.sh" in wrapper_contents
@@ -930,6 +948,7 @@ def test_install_script_creates_working_wrapper_with_py_launcher(tmp_path: Path)
     assert wrapper_run.stdout.splitlines() == ["wrapper-ok abc", "encoding utf-8"]
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_install_script_wrapper_supports_spaces_in_project_path(tmp_path: Path):
     project_dir = tmp_path / "project with spaces"
     scripts_dir = project_dir / "scripts"
@@ -970,7 +989,7 @@ def test_install_script_wrapper_supports_spaces_in_project_path(tmp_path: Path):
 
     assert install_result.returncode == 0, install_result.stderr
 
-    wrapper_path = home_dir / ".local" / "bin" / "codex-patcher"
+    wrapper_path = home_dir / ".local" / "bin" / "claude-patcher"
     wrapper_run = subprocess.run(
         [str(wrapper_path), "abc"],
         cwd=project_dir,
@@ -988,6 +1007,7 @@ def test_install_script_wrapper_supports_spaces_in_project_path(tmp_path: Path):
     assert wrapper_run.stdout.strip() == "space-ok abc"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_web_state_dir_uses_gitdir_for_worktree_checkout(tmp_path: Path):
     project_dir = tmp_path / "project"
     scripts_dir = project_dir / "scripts"
@@ -1011,6 +1031,7 @@ def test_web_state_dir_uses_gitdir_for_worktree_checkout(tmp_path: Path):
     assert result.stdout.strip() == str(git_dir / "web-runtime")
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_web_state_dir_trims_carriage_return_from_worktree_gitdir(tmp_path: Path):
     project_dir = tmp_path / "project"
     scripts_dir = project_dir / "scripts"
@@ -1035,6 +1056,7 @@ def test_web_state_dir_trims_carriage_return_from_worktree_gitdir(tmp_path: Path
     assert result.stdout.strip() == str(git_dir / "web-runtime")
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell launcher test; Windows uses web-windows.ps1")
 def test_web_state_dir_treats_windows_drive_gitdir_as_absolute(tmp_path: Path):
     project_dir = tmp_path / "project"
     scripts_dir = project_dir / "scripts"

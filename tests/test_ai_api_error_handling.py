@@ -11,6 +11,7 @@ from web.backend.ai_service import (
 )
 from web.backend.prompt_rewriter import rewrite_prompt
 from web.backend.schemas import Settings
+from codex_session_patcher.core import SessionFormat
 
 
 def _patch_async_client(monkeypatch, *, response=None, exc=None):
@@ -170,7 +171,7 @@ def test_generate_ai_rewrite_surfaces_error_when_all_llm_calls_fail(
         mock_response="默认回退文案",
     )
 
-    result = asyncio.run(generate_ai_rewrite(str(session_file), settings))
+    result = asyncio.run(generate_ai_rewrite(str(session_file), settings, session_format=SessionFormat.CODEX))
 
     assert result.success is False
     assert result.error is not None
@@ -243,7 +244,7 @@ def test_generate_ai_rewrite_uses_fallback_for_question_mark_mojibake(
         mock_response="默认回退文案",
     )
 
-    result = asyncio.run(generate_ai_rewrite(str(session_file), settings))
+    result = asyncio.run(generate_ai_rewrite(str(session_file), settings, session_format=SessionFormat.CODEX))
 
     assert result.success is True
     assert len(result.items) == 1

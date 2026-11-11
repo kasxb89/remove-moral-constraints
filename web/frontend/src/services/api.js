@@ -95,12 +95,12 @@ async function request(path, options = {}) {
 }
 
 // 获取会话列表
-export async function getSessions(skipCheck = false, format = 'auto') {
+export async function getSessions(skipCheck = false, format = 'claude_code') {
   return request(`/sessions?skip_check=${skipCheck}&format=${format}`)
 }
 
 // 搜索会话内容
-export async function searchSessions(query, format = 'auto') {
+export async function searchSessions(query, format = 'claude_code') {
   return request(`/sessions/search?query=${encodeURIComponent(query)}&format=${format}`)
 }
 

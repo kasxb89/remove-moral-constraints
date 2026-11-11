@@ -7,6 +7,7 @@ import json
 import os
 import stat
 import tempfile
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional, Union
@@ -49,6 +50,36 @@ def _fsync_directory(directory: Path) -> None:
         os.close(fd)
 
 
+def _replace_with_retry(
+    source: Path, target: Path, original: Optional[os.stat_result]
+) -> None:
+    """短暂的 Windows 共享冲突可重试，仍由系统检查每次替换的权限。"""
+    original_version = (
+        (original.st_dev, original.st_ino, original.st_size, original.st_mtime_ns)
+        if original is not None else None
+    )
+    delays = (0.1, 0.2, 0.4, 0.8, 1.6)
+    for attempt in range(len(delays) + 1):
+        try:
+            os.replace(str(source), str(target))
+            return
+        except OSError as exc:
+            if (
+                os.name != "nt"
+                or getattr(exc, "winerror", None) not in (5, 32, 33)
+                or attempt == len(delays)
+            ):
+                raise
+            time.sleep(delays[attempt])
+            current = require_regular_or_missing(target)
+            current_version = (
+                (current.st_dev, current.st_ino, current.st_size, current.st_mtime_ns)
+                if current is not None else None
+            )
+            if current_version != original_version:
+                raise OSError("原文件在等待替换期间发生变化，请刷新后重试") from exc
+
+
 def atomic_write_bytes(path: PathLike, data: bytes, mode: Optional[int] = None) -> None:
     """在同目录完整写入临时文件后原子替换目标。"""
     target = Path(path)
@@ -70,7 +101,7 @@ def atomic_write_bytes(path: PathLike, data: bytes, mode: Optional[int] = None) 
             stream.write(data)
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(str(temp_path), str(target))
+        _replace_with_retry(temp_path, target, current)
         if os.name != "nt":
             os.chmod(str(target), final_mode)
         _fsync_directory(target.parent)

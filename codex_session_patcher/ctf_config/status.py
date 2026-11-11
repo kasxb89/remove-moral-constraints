@@ -21,7 +21,7 @@ DEFAULT_CODEX_PROMPT_FILE = "ctf_optimized.md"
 
 def has_ctf_marker(content: str) -> bool:
     """检查提示词开头是否包含本工具的所有权标记。"""
-    return CTF_MARKER in content[:500]
+    return any(marker in content[:500] for marker in (CTF_MARKER, "managed-by: claude-session-patcher:ctf"))
 
 
 def ensure_ctf_marker(content: str) -> str:

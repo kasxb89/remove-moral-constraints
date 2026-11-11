@@ -1,5 +1,5 @@
 #!/bin/bash
-# Codex Session Patcher 安装脚本
+# Claude Session Patcher 安装脚本
 
 set -euo pipefail
 
@@ -8,7 +8,7 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 source "$SCRIPT_DIR/web-common.sh"
 
-echo "=== Codex Session Patcher 安装脚本 ==="
+echo "=== Claude Session Patcher 安装脚本 ==="
 
 PYTHON_BIN="$(web_pick_python_bin || true)"
 if [ -z "$PYTHON_BIN" ]; then
@@ -23,7 +23,7 @@ BIN_DIR="$HOME/.local/bin"
 mkdir -p "$BIN_DIR"
 
 MODULE_ENTRY="$PROJECT_DIR/codex_session_patcher/cli.py"
-TARGET_PATH="$BIN_DIR/codex-patcher"
+TARGET_PATH="$BIN_DIR/claude-patcher"
 
 if [ ! -f "$MODULE_ENTRY" ]; then
     echo "错误: 未找到入口脚本 $MODULE_ENTRY"
@@ -73,8 +73,8 @@ echo ""
 echo "=== 安装完成 ==="
 echo ""
 echo "使用方法:"
-echo "    codex-patcher --latest      # 清理最新会话"
-echo "    codex-patcher --all         # 清理所有会话"
-echo "    codex-patcher --web         # 启动 Web UI"
-echo "    codex-patcher --help        # 查看帮助"
+echo "    claude-patcher --latest      # 清理最新会话"
+echo "    claude-patcher --all         # 清理所有会话"
+echo "    claude-patcher --web         # 启动 Web UI"
+echo "    claude-patcher --help        # 查看帮助"
 echo ""

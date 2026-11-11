@@ -998,6 +998,7 @@ class ClaudeCodeCTFInstaller:
         Returns:
             tuple[bool, str]: (是否成功, 消息)
         """
+        from ..claude import ensure_claude_marker
         try:
             details = []
 
@@ -1008,7 +1009,7 @@ class ClaudeCodeCTFInstaller:
             # 2. 写入 .claude/CLAUDE.md
             prompt_content, prompt_backup = _write_workspace_prompt(
                 self.prompt_path,
-                custom_prompt or CLAUDE_CODE_SECURITY_MODE_PROMPT,
+                ensure_claude_marker(custom_prompt or CLAUDE_CODE_SECURITY_MODE_PROMPT),
             )
             details.append(f"✓ 已创建 CLAUDE.md: {self.prompt_path}")
             if prompt_backup:
@@ -1024,7 +1025,7 @@ class ClaudeCodeCTFInstaller:
                 details.append("✓ 已注入宽松权限到 settings.local.json")
 
             details.append("")
-            details.append("使用方法: cd ~/.claude-ctf-workspace && claude")
+            details.append("使用方法: claude-ctf" if os.name == "nt" else '使用方法: cd "$HOME/.claude-ctf-workspace" && claude')
 
             return True, "\n".join(details)
 
@@ -1047,7 +1048,7 @@ class ClaudeCodeCTFInstaller:
                     require_regular_or_missing(self.prompt_path)
                     with open(self.prompt_path, 'r', encoding='utf-8') as f:
                         content = f.read(500)
-                    if CTF_MARKER in content:
+                    if has_ctf_marker(content):
                         os.remove(self.prompt_path)
                         details.append(f"✓ 已删除 CLAUDE.md: {self.prompt_path}")
                     else:

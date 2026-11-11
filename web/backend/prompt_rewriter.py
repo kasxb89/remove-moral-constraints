@@ -22,7 +22,7 @@ async def rewrite_prompt(
     ai_endpoint: str,
     ai_key: str,
     ai_model: str,
-    target: str = "codex",
+    target: str = "claude_code",
     ctf_prompt: Optional[str] = None,
 ) -> tuple[str, str]:
     """

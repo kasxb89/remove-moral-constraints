@@ -1,4 +1,23 @@
 export default {
+  claude: {
+    globalScope: "All projects",
+    globalPrompt: "User-level global instructions",
+  "intro": "Manage Claude Code sessions, backups, and user-level global instructions.",
+  "startTitle": "Start Claude Code in any project",
+  "installHelp": "Enable user-level global instructions once:",
+  "launchHelp": "Run claude in your project directory. New sessions load the global instructions. Use claude-ctf to apply the Windows proxy while keeping the current directory.",
+  "workspace": "Dedicated workspace",
+  "location": "Claude Code sessions are stored in ~/.claude/projects and listed by project and date.",
+  "cleanTitle": "Preview, clean, and restore",
+  "cleanSteps": [
+    "Choose a Claude session from the list.",
+    "Review the preview and diff, then select the content to process.",
+    "Cleaning creates a backup by default. Restore it from the backup panel.",
+    "Return to the original project directory and run claude --continue."
+  ],
+  "commandsTitle": "Common commands",
+  "empty": "No Claude sessions yet. Run claude-ctf, complete a conversation, and refresh."
+},
   // Common
   common: {
     save: 'Save',
@@ -174,7 +193,7 @@ export default {
     disableGlobal: 'Disable Global',
     confirmDisableCtf: 'Are you sure you want to disable CTF mode?',
     confirmDisableGlobal: 'Are you sure you want to disable global mode? New sessions will no longer be affected.',
-    confirmDisableClaude: 'Are you sure you want to disable Claude Code CTF mode? This will delete CLAUDE.md from the CTF workspace.',
+    confirmDisableClaude: "Remove the global instructions managed by this tool? Other global content will be preserved.",
     promptRewrite: 'Prompt Rewrite',
     promptRewriteDesc: 'AI rewrites your request based on the injected CTF system prompt — works best when used with CTF Mode enabled',
     aiRewriteBtn: 'AI Rewrite',
@@ -197,9 +216,9 @@ export default {
     noAiConfig: 'Please configure AI API in Settings first',
     aiAnalyze: 'AI Rewrite',
     aiGenerated: 'AI Generated',
-    claudeDesc: 'Create dedicated CTF workspace (~/.claude-ctf-workspace) with project-level CLAUDE.md for security testing context.',
+    claudeDesc: "Write instructions to the user-level global CLAUDE.md for new Claude Code sessions in every project.",
     activationCommand: 'Activation Command',
-    claudeWarning: 'Launch Claude Code from this directory: cd ~/.claude-ctf-workspace && claude',
+    claudeWarning: "Global instructions load in new sessions. Start a new Claude Code session after changing them.",
     confirmDisableOpencode: 'Are you sure you want to disable OpenCode CTF mode? This will delete AGENTS.md from the CTF workspace.',
     opencodeDesc: 'Create dedicated CTF workspace (~/.opencode-ctf-workspace) with AGENTS.md for security testing context.',
     opencodeWarning: 'OpenCode does not have profiles. CTF mode requires launching from the dedicated workspace directory.',
@@ -262,7 +281,7 @@ export default {
   // Help
   help: {
     title: 'Help',
-    intro: 'A toolkit to help you use Codex CLI more smoothly in security testing scenarios.',
+    intro: "Manage Claude Code sessions, backups, and user-level global instructions.",
     features: {
       ctf: 'CTF/Penetration Mode: Inject security testing context to reduce refusal rate',
       rewrite: 'Prompt Rewrite: Rewrite sensitive requests to be more acceptable',
