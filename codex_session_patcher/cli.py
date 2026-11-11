@@ -296,7 +296,7 @@ def main():
     # CTF 配置参数 — Codex
     parser.add_argument('--install-ctf-config', action='store_true', help='安装 Codex 安全测试配置')
     parser.add_argument('--uninstall-ctf-config', action='store_true', help='卸载 Codex 安全测试配置')
-    parser.add_argument('--ctf-status', action='store_true', help='查看安全测试配置状态（Codex + Claude Code）')
+    parser.add_argument('--ctf-status', action='store_true', help='查看安全测试配置状态（Codex / Claude Code / OpenCode）')
     parser.add_argument('--ctf-injection-mode', choices=['append', 'replace'], default='append',
                         help='Codex 提示词注入方式：append 追加规则，replace 替换内置提示词 (默认: append)')
     # CTF 配置参数 — Claude Code

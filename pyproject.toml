@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your@email.com"}
+    {name = "kasxb89", email = "kasxbls@163.com"}
 ]
 keywords = ["codex", "cli", "session", "patcher"]
 dependencies = []
@@ -51,4 +51,4 @@ build = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --cov=codex_session_patcher --cov=codex_patcher"
+addopts = "-v"

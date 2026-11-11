@@ -481,8 +481,8 @@ export PYTHONIOENCODING=utf-8
 
 - ⭐ 点个 Star
 - ☕ Web UI 右上角有赞赏入口（微信 / USDC）
-- 📢 微信公众号：`YOUR_WECHAT_MP`
-- 🐦 X (Twitter)：[@YOUR_X_HANDLE](https://x.com/YOUR_X_HANDLE)
+- 📢 微信公众号：`钢之AI术师`
+- 🐦 X (Twitter)：[@ZhangYufan73644](https://x.com/ZhangYufan73644)
 
 ---
 
@@ -494,6 +494,6 @@ export PYTHONIOENCODING=utf-8
 
 <div align="center">
   <a href="https://github.com/kasxb89">GitHub</a> ·
-  <a href="https://x.com/YOUR_X_HANDLE">X (Twitter)</a> ·
-  微信公众号：YOUR_WECHAT_MP
+  <a href="https://x.com/ZhangYufan73644">X (Twitter)</a> ·
+  微信公众号：钢之AI术师
 </div>

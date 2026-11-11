@@ -481,7 +481,7 @@ If this project helps you:
 
 - ⭐ Star the repo
 - ☕ Sponsor button in the Web UI top-right corner (WeChat / USDC)
-- 🐦 X (Twitter): [@YOUR_X_HANDLE](https://x.com/YOUR_X_HANDLE)
+- 🐦 X (Twitter): [@ZhangYufan73644](https://x.com/ZhangYufan73644)
 
 ---
 
@@ -493,5 +493,5 @@ If this project helps you:
 
 <div align="center">
   <a href="https://github.com/kasxb89">GitHub</a> ·
-  <a href="https://x.com/YOUR_X_HANDLE">X (Twitter)</a>
+  <a href="https://x.com/ZhangYufan73644">X (Twitter)</a>
 </div>
