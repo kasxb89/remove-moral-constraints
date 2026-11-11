@@ -10,7 +10,7 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -390,9 +390,29 @@ def _detect_format_from_path(file_path: str) -> SessionFormat:
 
 def decode_claude_project_path(encoded: str) -> str:
     """将 Claude Code 的编码目录名转回文件系统路径。
-    例："-Users-foo-bar" → "/Users/foo/bar"
+
+    Claude Code 把路径里的 '/' 编码成 '-'，连字符本身无法与分隔符区分，
+    因此优先按真实文件系统递归匹配，匹配不到再退回简单替换。
+    例："-Users-foo-codex-session-patcher" → "/Users/foo/codex-session-patcher"
     """
     if not encoded or not encoded.startswith('-'):
         return encoded
-    # 去掉首个 '-'，然后将 '-' 替换为 '/'
+
+    segments = tuple(encoded[1:].split('-'))
+    resolved = _resolve_claude_path('/', 0, segments)
+    if resolved:
+        return resolved
     return '/' + encoded[1:].replace('-', '/')
+
+
+def _resolve_claude_path(base: str, index: int, segments: Tuple[str, ...]) -> Optional[str]:
+    """按目录存在性回溯匹配，让带连字符的目录名能整段识别。"""
+    if index == len(segments):
+        return base
+    for end in range(len(segments), index, -1):
+        candidate = os.path.join(base, '-'.join(segments[index:end]))
+        if os.path.isdir(candidate):
+            resolved = _resolve_claude_path(candidate, end, segments)
+            if resolved:
+                return resolved
+    return None
