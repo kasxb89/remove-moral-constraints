@@ -14,6 +14,14 @@ claude-patcher-web
 
 浏览器访问 http://127.0.0.1:8080。也可双击项目目录中的 `start-web.cmd`，双击 `stop-web.cmd` 停止管理服务。
 
+需要后台常驻时，在项目目录执行一次：
+
+```powershell
+powershell.exe -NoProfile -File .\scripts\web-windows.ps1 -Action Install -NoBrowser
+```
+
+这会注册当前用户登录时自动启动的计划任务 `ClaudeSessionPatcher-Web`，隐藏运行，由后台监护进程在服务退出后等待 5 秒重新启动。关闭浏览器或终端不会停止服务，未登录时不运行。`stop-web.cmd` 会停止计划任务及服务；`start-web.cmd` 可再次启动。卸载自启动使用同一脚本的 `-Action Uninstall -NoBrowser`。运行日志保存在项目的 `.run` 目录。
+
 ## 启动 Claude Code
 
 ```powershell
